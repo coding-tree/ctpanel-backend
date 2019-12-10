@@ -5,7 +5,8 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "mongodb": "^3.4.0"
   },
   "devDependencies": {
     "concurrently": "^4.1.2",
@@ -15,7 +16,7 @@
     "type": "git",
     "url": "https://github.com/codingtreefoundation/meet-up"
   },
-  "main": "index.js",
+  "main": "server.js",
   "keywords": [],
   "license": "ISC"
 }
