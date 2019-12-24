@@ -1,14 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 const path = require("path");
 const db = require("./db");
 const collection = "topics";
-
-
 
 db.connect(err => {
     if (err) {
@@ -35,7 +35,6 @@ app.get("/getTopics", (req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                console.log(documents);
                 res.json(documents);
             }
         });
@@ -44,19 +43,42 @@ app.get("/getTopics", (req, res) => {
 app.put("/:id", (req, res) => {
     const topicID = req.params.id;
     const userInput = req.body;
-
     db.getDB()
         .collection(collection)
         .findOneAndUpdate(
             { _id: db.getPrimaryKey(topicID) },
-            { $set: { topic: userInput.topic }, $inc: { votes: 1 } },
+            { $set: { topic: userInput.topic } },
             { returnOriginal: false },
             (err, result) => {
                 if (err) console.log(err)
-                else res.json(result)
+                else {
+                    res.json(result)
+                }
             }
         );
 });
+
+app.put("/vote/:id", (req, res) => {
+    const topicID = req.params.id;
+    const isVoted = Object.values(req.cookies).indexOf(topicID.toString()) > -1
+    if (!isVoted) {
+        db.getDB()
+            .collection(collection)
+            .findOneAndUpdate(
+                { _id: db.getPrimaryKey(topicID) },
+                { $inc: { votes: 1 } },
+                { returnOriginal: false },
+                (err, result) => {
+                    if (err) console.log(err)
+                    else {
+                        res.cookie(topicID, topicID, { maxAge: 24 * 60 * 60 * 1000 })
+                        res.json(result)
+                    }
+                }
+            );
+    }
+});
+
 
 app.post('/', (req, res) => {
     const userInput = req.body;
@@ -70,6 +92,9 @@ app.delete('/:id', (req, res) => {
     const topicID = req.params.id;
     db.getDB().collection(collection).findOneAndDelete({ _id: db.getPrimaryKey(topicID) }, (err, result) => {
         if (err) console.log(err);
-        else res.json(result)
+        else {
+            res.clearCookie(topicID.toString())
+            res.json(result)
+        }
     })
 });

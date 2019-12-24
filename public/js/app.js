@@ -17,8 +17,8 @@ const showModal = () => {
 const buildTemplate = (topic, ids) => {
   return `
       <li class="item" id=${ids.listItemID}>
-        <span>
-          ${topic.topic} <span id="${ids.topicID}">(${topic.votes})</span>
+        <span id="${ids.topicID}">
+          ${topic.topic} <span>(${topic.votes})</span>
         </span>
         <div class="buttons">
         <button type="button" class="vote" id="${ids.voteID}">Głosuj</button>
@@ -46,13 +46,13 @@ const resetTopic = () => {
 const voteForTopic = (topic, topicID, voteID) => {
   let voteBtn = document.querySelector(`#${voteID}`)
   voteBtn.addEventListener('click', () => {
-    fetch(`/${topic._id}`, {
+    fetch(`/vote/${topic._id}`, {
       method: "put",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
       },
 
-      body: JSON.stringify({ topic: topic.topic, votes: topic.votes })
+      body: JSON.stringify({ topic: topic.topic, votes: topic.votes, isVoted: true })
     }).then((response) => {
       return response.json()
     }).then((data) => {
@@ -81,7 +81,7 @@ const editTopic = (topic, topicID, editID) => {
       if (data.ok == 1) {
         let topicIndex = document.querySelector(`#${topicID}`)
         // probably here is mistake
-        topicIndex.textContent = `${data.value.topic} (0)`
+        topicIndex.innerText = `${data.value.topic} (${data.value.votes})`
         resetTopic()
       }
     })
