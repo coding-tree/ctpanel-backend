@@ -2,8 +2,7 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectID = require("mongodb").ObjectID;
 const dbname = "crud_mongodb";
 const uri = "mongodb+srv://admin:dupa1@manager-rkiky.mongodb.net/test?retryWrites=true&w=majority";
-
-const mongoOptions = { useNewUrlParser: true };
+const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
 const state = {
     db: null
