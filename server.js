@@ -38,6 +38,20 @@ app.get("/meetings", (req, res) => {
         });
 });
 
+app.get("/meetings/sorted", (req, res) => {
+    db.getDB()
+        .collection(collection)
+        .find({})
+        .sort({ date: 1 })
+        .toArray((err, documents) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.json(documents);
+            }
+        });
+});
+
 app.get("/meetings/incoming", (req, res) => {
     db.getDB()
         .collection(collection)
@@ -96,7 +110,7 @@ app.put("/meetings/:id", (req, res) => {
         );
 });
 
-app.put("/vote/:id", (req, res) => {
+app.put("/meetings/vote/:id", (req, res) => {
     const topicID = req.params.id;
     const isVoted = Object.values(req.cookies).indexOf(topicID.toString()) > -1
     if (!isVoted) {
