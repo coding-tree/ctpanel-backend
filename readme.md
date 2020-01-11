@@ -1,63 +1,83 @@
-# Manager spotkań
+# Meet app
 
-Manager spotkań, jak sama nazwa wskazuje ma pomagać Coding Tree przy organizacji spotkań. Jego wiodąca funkcja to możliwość dodania oraz edycji i usunięcia tematu na najbliższe spotkanie.
+Meet app role is helping Coding Tree with organizing meetings.
 
-## Instalacja
+## Installation
 
-Aplikacja do wystartowania potrzebuje stworzonej lokalnie bazy w mongodb oraz wgranego Node. Jeżeli korzystasz z NPM, to nie musisz instalować Node, bo jest już wgrane. Archiwum jest bez katalogu node_modules, więc po pobraniu i otworzeniu projektu użyj komendy
-
+App to run needs local mongodb database or owner's permission to connect with mongo cloud.
 ```bash
 npm install
 ```
-żeby pobrać wszystkie zależności. 
+To download all dependencies.
 
 ```bash
 node index
 ```
-żeby uruchomić serwer.
+To run server in server subdirectory.
 
-## Co działa, co nie działa, co będzie działać?
+## Features
 
-Działa
+Works
 
-* Manipulacja tematem (dodanie, edycja, usunięcie)
-* Głosowanie (zrobiona prosta walidacja poprzez cookies)
+* Topic/meeting CRUD
+* Voting for topic (simple cookie validation right now)
+* Google oauth login
 
-Czego brakuje
-* Rejestracji/logowania
-* Ról użytkowników (np. tylko administrator, lub osoba dodająca może usunąć temat)
-* Logiki (temat z najwyższą liczbą głosów zostaje przeniesiony do archiwum, a reszta głosów zostaje wyzerowana)
-* Wszystkiego innego
+What don't we have
+* User roles
 
-Co będzie działać
-* Wszystko :) Bądźmy dobrej myśli!
+## Technologies
 
+ExpressJS + Mongoose
 
-## Technologie
+## Assumptions
 
-ExpressJS + MongoDB (docelowo Mongoose)
+- Time unit - timestamp (new Date().getTime())
 
-## Założenia
+## Endpoints
+GET
+- / - homepage
+- /meetings - list of all meetings
+- /meetings/:id - get specific meeting by id
+- /meetings/sorted - all meetings sorted by date
+- /meetings/last-one - last meeting
+- /meetings/incoming - closest incoming meeting
+- /meetings/archive - archive of meetings
+- /topics - list of all topics
+- /topics/:id - get specific topic by id
+- /topics/top-rated - get top rated topic
 
-- Jednostka czasu - timestamp (new Date().getTime())
+PUT
+- /meetings/:id - update meeting by id
+- /topics/:id - update topic by id
+- /topics/vote/:id - vote for topic
 
-## Endpointy dla harmonogramu
-- GET
-- / - h1 z informacją, że nie ma frontendu
-- /meetings - lista wszystkich spotkań
-- /meetings/sorted - wszystkie spotkania posortowane od najstarszego do najnowszego
-- /meetings/incoming - najbliższe spotkanie
-- /meetings/archive - archiwum spotkań, które się odbyły
-- /meetings/lastone - ostatnie odbyte spotkanie
-- POST
-- /meetings - dodaje spotkanie
-- DELETE
-- /meetings/:id - usuwa spotkanie oraz cookie o danym ID
-- PUT
-- /meetings/vote/:id - głosuje na dane spotkanie i ustawia cookie na 24h
-- /meetings/:id - aktualizuje spotkanie
-## Endpointy dla innych zakładek
-// todo
+POST
+- /meetings - add new meeting
+- /topics - add new topic
 
-## Licencja
+DELETE
+- /meetings/:id - delete meeting by id
+- /topics/:id - delete topic by id
+
+## Models
+User
+- username: String
+- googleId: String
+- thumbnail: String
+
+Meeting
+- date: Number
+- topic: String
+- leader: String
+- duration: String
+- resourcesURL: String
+
+Topic
+- topic: String
+- votes: Number
+- addedDate: Number
+- usuerAdded: String
+
+## License
 [MIT](https://choosealicense.com/licenses/mit/)

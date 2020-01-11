@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Logowanie</title>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <% if (user) { %>
+        <li><a href="/">Strona główna</a></li>
+        <li><a href="/schedule">Harmonogram</a></li>
+        <li><a href="/topic-database">Baza tematów</a></li>
+        <li><a href="/meetings-archive">Historia</a></li>
+        <li><a href="/profile">Konto</a></li>
+        <li><a href="/auth/logout">Wyloguj</a></li>
+        <% } %>
+        <li><a href="/">Strona główna</a></li>
+      </ul>
+    </nav>
+    <header>
+      <h1>Strona logowania</h1>
+    </header>
+    <main>
+      <a href="/auth/google">Logowanie Google</a>
+    </main>
+  </body>
+</html>
