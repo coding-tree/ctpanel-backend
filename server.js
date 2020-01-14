@@ -21,7 +21,7 @@ app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({extended: true}));
 
 // set view engine
-// app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
