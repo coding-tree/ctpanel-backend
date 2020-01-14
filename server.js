@@ -21,7 +21,7 @@ app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({extended: true}));
 
 // set view engine
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
@@ -39,9 +39,10 @@ app.listen(3001, () => {
 });
 
 // connect to mongodb
-mongoose.connect(keys.mongodb.dbURI, mongoOptions, () => {
-  console.log('connected to mongodb');
-});
+mongoose
+  .connect(keys.mongodb.dbURI, mongoOptions)
+  .then(() => console.log('Connected to mongodb'))
+  .catch(err => console.log('Could not connect to mongodb', err.message));
 
 // set up routes
 app.use('/auth', authRoutes);
@@ -96,7 +97,7 @@ app.get('/meetings/sorted', async (req, res) => {
 // get closest incoming meeting
 app.get('/meetings/incoming', async (req, res) => {
   try {
-    const result = await MeetingModel.find({
+    const result = await MeetingModel.findOne({
       date: {$gte: new Date().getTime()},
     })
       .sort({date: 1})
@@ -111,7 +112,7 @@ app.get('/meetings/incoming', async (req, res) => {
 // get last meeting
 app.get('/meetings/last-one', async (req, res) => {
   try {
-    const result = await MeetingModel.find({
+    const result = await MeetingModel.findOne({
       date: {$lte: new Date().getTime()},
     })
       .sort({date: -1})
