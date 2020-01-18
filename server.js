@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const keys = require('./config/keys');
 const passport = require('passport');
-const BodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 //routes
@@ -17,8 +17,8 @@ const meetingsArchiveRoutes = require('./routes/meetings-archive-routes');
 
 const app = express();
 
-app.use(BodyParser.json());
-app.use(BodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 // set view engine
 app.set('view engine', 'ejs');
@@ -35,7 +35,11 @@ app.use(passport.session());
 
 // app listen
 app.listen(3001, () => {
-  console.log('app now listening for requests on port 3001');
+  try {
+    console.log('app now listening for requests on port 3001');
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 // connect to mongodb

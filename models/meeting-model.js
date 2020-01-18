@@ -7,8 +7,8 @@ const meetingSchema = new Schema({
   leader: String,
   duration: String,
   resourcesURL: String,
-  // usefulLinks: Array,
-  // description: String,
+  usefulLinks: Array,
+  description: String,
 });
 
 const Meeting = mongoose.model('meetings', meetingSchema);

@@ -85,6 +85,7 @@ Meeting
 - duration: String
 - resourcesURL: String
 - usefulLinks: Array
+- description: String
 
 Topic
 
