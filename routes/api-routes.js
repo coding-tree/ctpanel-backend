@@ -151,8 +151,8 @@ router.get('/topics', async (req, res) => {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const result = await TopicModel.find().exec();
-        const resultTopics = result.slice(startIndex, endIndex)
-        res.send(resultTopics);
+        const resultPaginated = result.slice(startIndex, endIndex)
+        res.send(resultPaginated);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -226,4 +226,5 @@ router.put('/topics/vote/:id', async (req, res) => {
     }
 });
 // #endregion
+
 module.exports = router;
