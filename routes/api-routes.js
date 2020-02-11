@@ -21,24 +21,9 @@ router.post('/meetings', async (req, res) => {
 });
 
 // get paginated meetings
-router.get('/meetings', async (req, res) => {
+router.get('/meetings', paginatedResults(MeetingModel), async (req, res) => {
     try {
-        const page = req.query.page;
-        const limit = req.query.limit;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const result = await MeetingModel.find().exec();
-        const resultPaginated = result.slice(startIndex, endIndex)
-        res.send(resultPaginated);
-    } catch (err) {
-        res.status(500).send(err);
-    }
-});
-// get all meetings
-router.get('/meetings/all', async (req, res) => {
-    try {
-        const result = await MeetingModel.find().exec();
-        res.send(result);
+        res.json(res.paginatedResults)
     } catch (err) {
         res.status(500).send(err);
     }
@@ -144,28 +129,13 @@ router.post('/topics', async (req, res) => {
 });
 
 // get paginated topics
-router.get('/topics', async (req, res) => {
+router.get('/topics', paginatedResults(TopicModel), async (req, res) => {
     try {
-        const page = req.query.page;
-        const limit = req.query.limit;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const result = await TopicModel.find().exec();
-        const resultPaginated = result.slice(startIndex, endIndex)
-        res.send(resultPaginated);
+        res.json(res.paginatedResults);
     } catch (err) {
         res.status(500).send(err);
     }
 });
-
-router.get('/topics/all', async (req, res) => {
-    try {
-        const result = await TopicModel.find().exec();
-        res.send(result);
-    } catch (err) {
-        res.status(500).send(err)
-    }
-})
 
 // update specific meeting
 router.put('/topics/:id', async (req, res) => {
@@ -226,5 +196,39 @@ router.put('/topics/vote/:id', async (req, res) => {
     }
 });
 // #endregion
+
+// pagination
+function paginatedResults(model) {
+    return async (req, res, next) => {
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
+
+        const startIndex = (page - 1) * limit
+        const endIndex = page * limit
+
+        const results = {}
+
+        if (endIndex < await model.countDocuments().exec()) {
+            results.next = {
+                page: page + 1,
+                limit: limit
+            }
+        }
+
+        if (startIndex > 0) {
+            results.previous = {
+                page: page - 1,
+                limit: limit
+            }
+        }
+        try {
+            results.results = await model.find().limit(limit).skip(startIndex).exec()
+            res.paginatedResults = results
+            next()
+        } catch (e) {
+            res.status(500).json({ message: e.message })
+        }
+    }
+}
 
 module.exports = router;

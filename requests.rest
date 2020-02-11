@@ -19,4 +19,6 @@
 # GET http://localhost:3001/meetings/all
 
 # >> get paginated topics
+# GET http://localhost:3001/meetings?page=2&limit=2
+
 GET http://localhost:3001/topics?page=1&limit=3
