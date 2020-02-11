@@ -15,7 +15,7 @@ router.post('/meetings', async (req, res) => {
     try {
         const meeting = new MeetingModel(req.body);
         const result = await meeting.save();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -36,7 +36,7 @@ router.get('/meetings/sorted', async (req, res) => {
         const result = await MeetingModel.find()
             .sort({ date: 1 })
             .exec();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -51,7 +51,7 @@ router.get('/meetings/incoming', async (req, res) => {
             .sort({ date: 1 })
             .limit(1)
             .exec();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -65,7 +65,7 @@ router.get('/meetings/last-one', async (req, res) => {
         })
             .sort({ date: -1 })
             .limit(1);
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -77,7 +77,7 @@ router.get('/meetings/archive', async (req, res) => {
         const result = await MeetingModel.find({
             date: { $lte: new Date().getTime() },
         });
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -87,7 +87,7 @@ router.get('/meetings/archive', async (req, res) => {
 router.get('/meetings/:id', async (req, res) => {
     try {
         const meeting = await MeetingModel.findById(req.params.id).exec();
-        res.send(meeting);
+        res.json(meeting);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -99,7 +99,7 @@ router.put('/meetings/:id', async (req, res) => {
         const meeting = await MeetingModel.findById(req.params.id).exec();
         meeting.set(req.body);
         const result = await meeting.save();
-        res.send(result);
+        res.json(result);
     } catch {
         res.status(500).send(err);
     }
@@ -109,7 +109,7 @@ router.put('/meetings/:id', async (req, res) => {
 router.delete('/meetings/:id', async (req, res) => {
     try {
         const result = await MeetingModel.deleteOne({ _id: req.params.id }).exec();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -123,7 +123,7 @@ router.post('/topics', async (req, res) => {
     try {
         const topic = new TopicModel(req.body);
         const result = await topic.save();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -144,7 +144,7 @@ router.put('/topics/:id', async (req, res) => {
         const topic = await TopicModel.findById(req.params.id).exec();
         topic.set(req.body);
         const result = await topic.save();
-        res.send(result);
+        res.json(result);
     } catch {
         res.status(500).send(err);
     }
@@ -154,7 +154,7 @@ router.put('/topics/:id', async (req, res) => {
 router.delete('/topics/:id', async (req, res) => {
     try {
         const result = await TopicModel.deleteOne({ _id: req.params.id }).exec();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -164,7 +164,7 @@ router.delete('/topics/:id', async (req, res) => {
 router.get('/topics/top-rated', async (req, res) => {
     try {
         const result = await TopicModel.findOne();
-        res.send(result);
+        res.json(result);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -174,7 +174,7 @@ router.get('/topics/top-rated', async (req, res) => {
 router.get('/topics/:id', async (req, res) => {
     try {
         const topic = await TopicModel.findById(req.params.id).exec();
-        res.send(topic);
+        res.json(topic);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -187,10 +187,10 @@ router.put('/topics/vote/:id', async (req, res) => {
         const isVoted = Object.values(req.cookies).indexOf(topicID.toString()) > -1;
         if (!isVoted) {
             const result = await TopicModel.findOneAndUpdate({ _id: topicID }, { $inc: { votes: 1 } }).exec();
-            res.send(result);
+            res.json(result);
         } else {
             res.cookie(topicID, topicID, { maxAge: 24 * 60 * 60 * 1000 });
-            res.send(result);
+            res.json(result);
         }
     } catch (err) {
         res.status(500).send(err);

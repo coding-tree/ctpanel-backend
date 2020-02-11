@@ -9,6 +9,22 @@
 #     "addedDate": 457754,
 #     "userAdded": "miki"
 # }
+# POST http://localhost:3001/meetings HTTP/1.1
+# content-type: application/json
+
+# {
+#     "date": 1254152,
+#     "topic": "jakis temat",
+#     "leader": "Andrzej",
+#     "duration": "1h30m",
+#     "resourcesURL": "brak",
+#     "usefulLinks": ["gogle","allegro"],
+#     "description": "brak opisu"
+# }
+# get topics
+
+GET http://localhost:3001/meetings
+
 
 # >> get paginated topics
 

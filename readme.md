@@ -43,14 +43,14 @@ ExpressJS + Mongoose
 GET
 
 - / - homepage
-- /meetings/all - list of all meetings
+- /meetings - all meetings
 - /meetings?page=1&limit=3 - first page of meetings with limit of 3 meetings
 - /meetings/:id - get specific meeting by id
 - /meetings/sorted - all meetings sorted by date
 - /meetings/last-one - last meeting
 - /meetings/incoming - closest incoming meeting
 - /meetings/archive - archive of meetings
-- /topics/all - list of all topics
+- /topics - all topics
 - /topics?page=1&limit=3 - first page of topics with limit of 3 topics
 - /topics/:id - get specific topic by id
 - /topics/top-rated - get top rated topic
