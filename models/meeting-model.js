@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const meetingSchema = new Schema({
-  id: Number,
   date: Number,
   topic: String,
   leader: String,
@@ -10,6 +9,7 @@ const meetingSchema = new Schema({
   resourcesURL: String,
   usefulLinks: Array,
   description: String,
+  tags: Array
 });
 
 const Meeting = mongoose.model('meetings', meetingSchema);
