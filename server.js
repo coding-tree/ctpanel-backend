@@ -24,8 +24,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 // app.use(cors());
 
 app.use(cookieParser());
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Load environment variables from .env
 
@@ -53,6 +51,9 @@ const strategy = new Auth0Strategy(
 
 passport.use(strategy);
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // app listen
 app.listen(3001, () => {
   try {
@@ -77,7 +78,7 @@ function secured(req, res, next) {
   const token = req.cookies['auth0-token'];
   if (!token) return res.status(401).send('Access Denied. No token provided');
   next();
-  console.log(req.session.returnTo);
+
   req.session.returnTo = req.originalUrl;
 }
 
@@ -150,7 +151,7 @@ passport.deserializeUser(function(user, done) {
 });
 
 app.get('/user', secured, function(req, res) {
-  console.log(req.user);
+  console.log('SIEMA', req.user);
   res.send({id: 1, name: 'Józef'});
   // res.redirect('http://localhost:3000/');
 });
