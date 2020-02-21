@@ -9,7 +9,10 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const path = require('path');
+const util = require('util');
+const url = require('url');
+const querystring = require('querystring');
+const jwt = require('jsonwebtoken');
 
 //routes
 const authRoutes = require('./routes/auth-routes');
@@ -18,7 +21,11 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cors());
+// app.use(cors());
+
+app.use(cookieParser());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Load environment variables from .env
 
@@ -40,20 +47,11 @@ const strategy = new Auth0Strategy(
     callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback',
   },
   function(accessToken, refreshToken, extraParams, profile, done) {
-    // accessToken is the token to call Auth0 API (not needed in the most cases)
-    // extraParams.id_token has the JSON Web Token
-    // profile has all the information from the user
-    // console.log(profile);
-    console.log(extraParams.id_token);
-    return done(null, profile);
+    return done(null, profile, extraParams.id_token);
   }
 );
 
 passport.use(strategy);
-
-app.use(cookieParser());
-app.use(passport.initialize());
-app.use(passport.session());
 
 // app listen
 app.listen(3001, () => {
@@ -63,11 +61,6 @@ app.listen(3001, () => {
     console.log(err);
   }
 });
-
-// app.use(express.static(__dirname + '/../client/public'));
-// app
-//   .get('*', (req, res) => res.sendFile(path.join(__dirname + '/../client/public/index.html')))
-//   .listen(3001, () => console.log('Server on port 3000'));
 
 // connect to mongodb
 mongoose
@@ -79,16 +72,22 @@ mongoose
 app.use('/auth', authRoutes);
 app.use(apiRoutes);
 
-// TEST
+// * SECURED MIDDLEWARE
+function secured(req, res, next) {
+  const token = req.cookies['auth0-token'];
+  if (!token) return res.status(401).send('Access Denied. No token provided');
+  next();
+  console.log(req.session.returnTo);
+  req.session.returnTo = req.originalUrl;
+}
 
 // Perform the login, after login Auth0 will redirect to callback
 app.get(
-  '/login2',
+  '/login',
   passport.authenticate('auth0', {
     scope: 'openid email profile',
   }),
   function(req, res) {
-    console.log('siema');
     res.redirect('/');
   }
 );
@@ -101,19 +100,45 @@ app.get('/callback', function(req, res, next) {
     if (!user) {
       return res.redirect('/login');
     }
+
     req.logIn(user, function(err) {
       if (err) {
         return next(err);
       }
+
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
-      res.redirect(returnTo || '/user');
+
+      res.cookie('auth0-token', info, {httpOnly: true});
+      res.redirect('/user');
     });
   })(req, res, next);
 });
 
 app.get('/', function(req, res, next) {
-  res.render('index', {title: 'Auth0 Webapp sample Nodejs'});
+  console.log('siema');
+  console.log(req.user);
+  res.redirect('http://localhost:3000');
+});
+
+// * LOGOUT
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.clearCookie('auth0-token');
+
+  var returnTo = req.protocol + '://' + req.hostname;
+  var port = req.connection.localPort;
+  if (port !== undefined && port !== 80 && port !== 443) {
+    returnTo += ':' + port;
+  }
+  var logoutURL = new url.URL(util.format('https://%s/v2/logout', process.env.AUTH0_DOMAIN));
+  var searchString = querystring.stringify({
+    client_id: process.env.AUTH0_CLIENT_ID,
+    returnTo: returnTo,
+  });
+  logoutURL.search = searchString;
+
+  res.redirect(logoutURL);
 });
 
 passport.serializeUser(function(user, done) {
@@ -124,6 +149,8 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
-app.get('/user', (req, res) => {
-  res.redirect('http://localhost:3000/');
+app.get('/user', secured, function(req, res) {
+  console.log(req.user);
+  res.send({id: 1, name: 'Józef'});
+  // res.redirect('http://localhost:3000/');
 });
