@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoOptions = {useNewUrlParser: true, useUnifiedTopology: true};
+const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const configuration = require('./config/configuration');
@@ -20,8 +20,8 @@ const apiRoutes = require('./routes/api-routes');
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 app.use(cookieParser());
 
@@ -44,7 +44,7 @@ const strategy = new Auth0Strategy(
     clientSecret: process.env.AUTH0_CLIENT_SECRET,
     callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback',
   },
-  function(accessToken, refreshToken, extraParams, profile, done) {
+  function (accessToken, refreshToken, extraParams, profile, done) {
     return done(null, profile, extraParams.id_token);
   }
 );
@@ -76,11 +76,21 @@ app.use(apiRoutes);
 // * SECURED MIDDLEWARE
 function secured(req, res, next) {
   const token = req.cookies['auth0-token'];
-  if (!token) return res.status(401).send('Access Denied. No token provided');
+  if (!token) {
+    return res.status(401).send('Access Denied. No token provided')
+  }
   next();
-
+  console.log(this.Auth0Strategy);
   req.session.returnTo = req.originalUrl;
 }
+
+app.get('/user', secured, function (req, res) {
+  if (req.user) {
+    const { displayName, id, nickname, picture } = req.user
+    res.json({ displayName, id, nickname, picture, role: 'user_default' });
+  }
+  res.redirect('http://localhost:3000/');
+});
 
 // Perform the login, after login Auth0 will redirect to callback
 app.get(
@@ -88,13 +98,13 @@ app.get(
   passport.authenticate('auth0', {
     scope: 'openid email profile',
   }),
-  function(req, res) {
+  function (req, res) {
     res.redirect('/');
   }
 );
 
-app.get('/callback', function(req, res, next) {
-  passport.authenticate('auth0', function(err, user, info) {
+app.get('/callback', function (req, res, next) {
+  passport.authenticate('auth0', function (err, user, info) {
     if (err) {
       return next(err);
     }
@@ -102,7 +112,7 @@ app.get('/callback', function(req, res, next) {
       return res.redirect('/login');
     }
 
-    req.logIn(user, function(err) {
+    req.logIn(user, function (err) {
       if (err) {
         return next(err);
       }
@@ -110,15 +120,13 @@ app.get('/callback', function(req, res, next) {
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
 
-      res.cookie('auth0-token', info, {httpOnly: true});
+      res.cookie('auth0-token', info, { httpOnly: true });
       res.redirect('/user');
     });
   })(req, res, next);
 });
 
-app.get('/', function(req, res, next) {
-  console.log('siema');
-  console.log(req.user);
+app.get('/', function (req, res, next) {
   res.redirect('http://localhost:3000');
 });
 
@@ -142,16 +150,12 @@ app.get('/logout', (req, res) => {
   res.redirect(logoutURL);
 });
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
-app.get('/user', secured, function(req, res) {
-  console.log('SIEMA', req.user);
-  res.send({id: 1, name: 'Józef'});
-  // res.redirect('http://localhost:3000/');
-});
+

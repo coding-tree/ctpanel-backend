@@ -7,7 +7,7 @@ const paginatedResults = require('../middleware/paginate')
 // #region meetings
 
 router.get('/', (req, res) => {
-    res.render('home', { user: req.user });
+    res.json({ user: req.user });
 });
 
 // post new meeting
