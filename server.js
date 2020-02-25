@@ -12,11 +12,11 @@ const cors = require('cors');
 const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
-const jwt = require('jsonwebtoken');
-
 //routes
 const authRoutes = require('./routes/auth-routes');
 const apiRoutes = require('./routes/api-routes');
+const topicsRoutes = require('./routes/topics-routes')
+const meetingsRoutes = require('./routes/meetings-routes')
 const app = express();
 
 app.use(bodyParser.json());
@@ -26,7 +26,6 @@ app.use(cors());
 app.use(cookieParser());
 
 // Load environment variables from .env
-
 dotenv.config();
 
 app.use(
@@ -48,7 +47,13 @@ const strategy = new Auth0Strategy(
     return done(null, profile, extraParams.id_token);
   }
 );
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
 
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
 passport.use(strategy);
 
 app.use(passport.initialize());
@@ -72,22 +77,23 @@ mongoose
 // set up routes
 app.use('/auth', authRoutes);
 app.use(apiRoutes);
+app.use(topicsRoutes);
+app.use(meetingsRoutes);
 
 // * SECURED MIDDLEWARE
 function secured(req, res, next) {
   const token = req.cookies['auth0-token'];
-  if (!token) {
+  if (!token && !req.user) {
     return res.status(401).send('Access Denied. No token provided')
   }
   next();
-  console.log(this.Auth0Strategy);
   req.session.returnTo = req.originalUrl;
 }
 
 app.get('/user', secured, function (req, res) {
   if (req.user) {
     const { displayName, id, nickname, picture } = req.user
-    res.json({ displayName, id, nickname, picture, role: 'user_default' });
+    res.json({ displayName, id, nickname, picture, role: 'user' });
   }
   res.redirect('http://localhost:3000/');
 });
@@ -116,46 +122,37 @@ app.get('/callback', function (req, res, next) {
       if (err) {
         return next(err);
       }
-
+      res.cookie('auth0-token', info, { httpOnly: true });
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
 
-      res.cookie('auth0-token', info, { httpOnly: true });
-      res.redirect('/user');
+      res.redirect('http://localhost:3000');
     });
   })(req, res, next);
 });
 
-app.get('/', function (req, res, next) {
-  res.redirect('http://localhost:3000');
-});
+// app.get('/', function (req, res, next) {
+//   res.redirect('http://localhost:3000');
+// });
 
 // * LOGOUT
 app.get('/logout', (req, res) => {
+  res.clearCookie('auth0-token', { path: '/' });
+  res.clearCookie('auth0.is.authenticated', { path: '/' });
   req.logout();
-  res.clearCookie('auth0-token');
 
   var returnTo = req.protocol + '://' + req.hostname;
   var port = req.connection.localPort;
   if (port !== undefined && port !== 80 && port !== 443) {
     returnTo += ':' + port;
   }
-  var logoutURL = new url.URL(util.format('https://%s/v2/logout', process.env.AUTH0_DOMAIN));
+  var logoutURL = new url.URL(util.format('http://%s/v2/logout', process.env.AUTH0_DOMAIN));
   var searchString = querystring.stringify({
     client_id: process.env.AUTH0_CLIENT_ID,
     returnTo: returnTo,
   });
   logoutURL.search = searchString;
 
-  res.redirect(logoutURL);
+  res.redirect('http://localhost:3000/login');
 });
-
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-
 

@@ -1,6 +1,6 @@
 // env
-const MEETUP_SECRET = process.env.MEETUP_SECRET;
-const key = require('./key');
+const dotenv = require('dotenv').config();
+const { meetupSecret, encryptedKey } = require('./cryptoConfig');
 const defaultCfg = require('./defaultConfiguration');
 const Cryptr = require('cryptr');
 const fs = require('fs');
@@ -14,10 +14,10 @@ const saveDefaultConfiguration = () => {
   });
 };
 
-if (MEETUP_SECRET !== undefined) {
+if (meetupSecret !== undefined) {
   try {
-    const cryptr = new Cryptr(MEETUP_SECRET);
-    const decryptedString = cryptr.decrypt(key);
+    const cryptr = new Cryptr(meetupSecret);
+    const decryptedString = cryptr.decrypt(encryptedKey);
     process.chdir('../config');
     process.cwd();
     fs.writeFile('./configuration.js', decryptedString, 'utf8', err => {
