@@ -1,16 +1,40 @@
 const meetings = require('express').Router();
 const MeetingModel = require('../models/meeting-model');
 const paginatedResults = require('../middleware/paginate')
+const { handleMeeting } = require('../middleware/validation');
 
-
-// post new meeting
 meetings.post('/meetings', async (req, res) => {
+    const { error } = handleMeeting(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+    const meeting = new MeetingModel({
+        date: req.body.date,
+        topic: req.body.topic,
+        leader: req.body.leader,
+        duration: req.body.duration,
+        resourcesURL: req.body.resourcesURL,
+        userfulLinks: req.body.userfulLinks,
+        description: req.body.description,
+        tags: req.body.tags
+    })
     try {
-        const meeting = new MeetingModel(req.body);
-        const result = await meeting.save();
-        res.json(result);
+        const savedMeeting = await meeting.save();
+        res.json(savedMeeting)
     } catch (err) {
-        res.status(500).send(err);
+        res.status(400).send(err)
+    }
+});
+
+meetings.put('/meetings/:id', async (req, res) => {
+    const { error } = handleMeeting(req.body);
+    if (error) return res.status(400).send(error.details[0].message)
+    try {
+        const meeting = await MeetingModel.findById(req.params.id).exec();
+        meeting.set(req.body);
+        const result = await meeting.save();
+        res.json(result)
+    }
+    catch (err) {
+        res.status(400).send(err)
     }
 });
 
@@ -87,18 +111,6 @@ meetings.get('/meetings/:id', async (req, res) => {
     }
 });
 
-// update specific meeting
-meetings.put('/meetings/:id', async (req, res) => {
-    try {
-        const meeting = await MeetingModel.findById(req.params.id).exec();
-        meeting.set(req.body);
-        const result = await meeting.save();
-        res.json(result);
-    } catch {
-        res.status(500).send(err);
-    }
-});
-
 // delete specific meeting
 meetings.delete('/meetings/:id', async (req, res) => {
     try {
@@ -110,4 +122,3 @@ meetings.delete('/meetings/:id', async (req, res) => {
 });
 
 module.exports = meetings;
-// #endregion

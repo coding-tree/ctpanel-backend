@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const topicSchema = new Schema({
   topic: String,
-  votes: Number,
-  addedDate: Number,
-  userAdded: String,
+  votes: { type: Number, default: 0 },
+  addedDate: { type: Date, default: Date.now },
+  userAdded: { type: String, default: "Gall Anonim" },
   tags: Array
 });
 

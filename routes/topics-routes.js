@@ -1,17 +1,24 @@
 const topics = require('express').Router();
 const TopicModel = require('../models/topic-model');
 const paginatedResults = require('../middleware/paginate')
-
+const { handleTopic } = require('../middleware/validation');
 // #region topics
 
-// get all topics
 topics.post('/topics', async (req, res) => {
+    const { error } = handleTopic(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+    const topic = new TopicModel({
+        topic: req.body.topic,
+        votes: req.body.votes,
+        addedDate: req.body.addedDate,
+        userAdded: req.body.userAdded,
+        tags: req.body.tags
+    })
     try {
-        const topic = new TopicModel(req.body);
-        const result = await topic.save();
-        res.json(result);
+        const savedTopic = await topic.save();
+        res.json(savedTopic)
     } catch (err) {
-        res.status(500).send(err);
+        res.status(400).send(err)
     }
 });
 
@@ -24,15 +31,18 @@ topics.get('/topics', paginatedResults(TopicModel), async (req, res) => {
     }
 });
 
-// update specific meeting
+// update specific meeting, should be changed to patch
 topics.put('/topics/:id', async (req, res) => {
+    const { error } = handleTopic(req.body);
+    if (error) return res.status(400).send(error.details[0].message)
     try {
         const topic = await TopicModel.findById(req.params.id).exec();
         topic.set(req.body);
         const result = await topic.save();
-        res.json(result);
-    } catch {
-        res.status(500).send(err);
+        res.json(result)
+    }
+    catch (err) {
+        res.status(400).send(err)
     }
 });
 

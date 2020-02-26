@@ -5,10 +5,10 @@ const meetingSchema = new Schema({
   date: Number,
   topic: String,
   leader: String,
-  duration: String,
+  duration: { type: String, default: "1h30m" },
   resourcesURL: String,
   usefulLinks: Array,
-  description: String,
+  description: { type: String, default: "komuś się nie chciało wpisać opisu" },
   tags: Array
 });
 
