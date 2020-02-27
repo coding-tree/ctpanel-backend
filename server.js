@@ -1,3 +1,7 @@
+// Load environment variables from .env
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 const mongoose = require('mongoose');
@@ -7,7 +11,6 @@ const passport = require('passport');
 const Auth0Strategy = require('passport-auth0');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const util = require('util');
 const url = require('url');
@@ -25,9 +28,6 @@ app.use(cors());
 
 app.use(cookieParser());
 
-// Load environment variables from .env
-dotenv.config();
-
 app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
@@ -35,14 +35,18 @@ app.use(
   })
 );
 
+const auth0Config = {
+  domain: process.env.AUTH0_DOMAIN,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback',
+}
+
+console.log("Auth0 Configuration", auth0Config);
+
 // Configure Passport to use Auth0
 const strategy = new Auth0Strategy(
-  {
-    domain: process.env.AUTH0_DOMAIN,
-    clientID: process.env.AUTH0_CLIENT_ID,
-    clientSecret: process.env.AUTH0_CLIENT_SECRET,
-    callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback',
-  },
+  auth0Config,
   function (accessToken, refreshToken, extraParams, profile, done) {
     return done(null, profile, extraParams.id_token);
   }
