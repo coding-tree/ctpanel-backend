@@ -1,6 +1,5 @@
 // Load environment variables from .env
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const express = require('express');
 const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };

@@ -1,5 +1,5 @@
 // env
-const dotenv = require('dotenv').config();
+require('dotenv').config({path: '../.env'});
 const { meetupSecret, encryptedKey } = require('./cryptoConfig');
 const defaultCfg = require('./defaultConfiguration');
 const Cryptr = require('cryptr');
