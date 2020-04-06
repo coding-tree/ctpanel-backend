@@ -45,14 +45,14 @@ const auth0Config = {
 console.log('Auth0 Configuration', auth0Config);
 
 // Configure Passport to use Auth0
-const strategy = new Auth0Strategy(auth0Config, function(accessToken, refreshToken, extraParams, profile, done) {
+const strategy = new Auth0Strategy(auth0Config, (accessToken, refreshToken, extraParams, profile, done) => {
   return done(null, profile, extraParams.id_token);
 });
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser((user, done) => {
   done(null, user);
 });
 passport.use(strategy);
@@ -73,7 +73,7 @@ app.listen(3001, () => {
 mongoose
   .connect(configuration.mongodb.dbURI, mongoOptions)
   .then(() => console.log('Connected to mongodb'))
-  .catch(err => console.log('Could not connect to mongodb', err.message));
+  .catch((err) => console.log('Could not connect to mongodb', err.message));
 
 // set up routes
 app.use('/auth', authRoutes);
@@ -82,13 +82,13 @@ app.use(topicsRoutes);
 app.use(meetingsRoutes);
 
 // * SECURED MIDDLEWARE
-function secured(req, res, next) {
+const secured = (req, res, next) => {
   const token = req.cookies['auth0-token'];
   if (!token && !req.user) {
     res.status(401).send('Access Denied. No token provided');
   }
   next();
-}
+};
 
 app.get('/check', secured, (req, res) => {
   console.log(req);
@@ -98,12 +98,12 @@ app.get('/check', secured, (req, res) => {
   return res.redirect('http://localhost:3001/login');
 });
 
-app.get('/user', secured, function(req, res) {
+app.get('/user', secured, (req, res) => {
   if (req.user) {
     const {displayName, id, nickname, picture} = req.user;
-    return res.json({displayName, id, nickname, picture, role: 'user'});
+    res.json({displayName, id, nickname, picture, role: 'user'});
   }
-  return res.redirect('http://localhost:3001/login');
+  // res.redirect('http://localhost:3001/');
 });
 
 // Perform the login, after login Auth0 will redirect to callback
@@ -112,13 +112,13 @@ app.get(
   passport.authenticate('auth0', {
     scope: 'openid email profile',
   }),
-  function(req, res) {
+  (req, res) => {
     res.redirect('/');
   }
 );
 
-app.get('/callback', function(req, res, next) {
-  passport.authenticate('auth0', function(err, user, info) {
+app.get('/callback', (req, res, next) => {
+  passport.authenticate('auth0', (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -126,7 +126,7 @@ app.get('/callback', function(req, res, next) {
       return res.redirect('/login');
     }
 
-    req.logIn(user, function(err) {
+    req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
@@ -139,9 +139,6 @@ app.get('/callback', function(req, res, next) {
   })(req, res, next);
 });
 
-// app.get('/', function (req, res, next) {
-//   res.redirect('http://localhost:3000');
-// });
 // profile
 app.get('/profile', requiresAuth(), (req, res) => {
   res.send(JSON.stringify(req.openid.user));
