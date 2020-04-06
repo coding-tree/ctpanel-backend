@@ -16,7 +16,6 @@ const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 //routes
-const authRoutes = require('./routes/auth-routes');
 const apiRoutes = require('./routes/api-routes');
 const topicsRoutes = require('./routes/topics-routes');
 const meetingsRoutes = require('./routes/meetings-routes');
@@ -76,7 +75,6 @@ mongoose
   .catch((err) => console.log('Could not connect to mongodb', err.message));
 
 // set up routes
-app.use('/auth', authRoutes);
 app.use(apiRoutes);
 app.use(topicsRoutes);
 app.use(meetingsRoutes);
