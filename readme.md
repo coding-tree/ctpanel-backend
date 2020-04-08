@@ -79,6 +79,22 @@ User
 - username: String
 - googleId: String
 - thumbnail: String
+- userFirstName: String,
+- userLastName: String,
+- userEmail: String,
+- userPhone: Number,
+- userGoogle: String,
+- userFacebook: String,
+- userGithub: String,
+- userDiscord: String,
+- userPresence: String,
+- userTimeSpent: String,
+- userAverageMark: String,
+- userMaxMark: Number,
+- userMinMark: Number,
+- userLongestTime: String,
+- userLeadershipAmount: Number,
+- userPassword: String
 
 Meeting
 
