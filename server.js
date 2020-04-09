@@ -99,9 +99,9 @@ app.get('/check', secured, (req, res) => {
 app.get('/user', secured, (req, res) => {
   if (req.user) {
     const {displayName, id, nickname, picture} = req.user;
-    res.json({displayName, id, nickname, picture, role: 'user'});
+    return res.json({displayName, id, nickname, picture, role: 'user'});
   }
-  // res.redirect('http://localhost:3001/');
+  return res.send('not ok');
 });
 
 // Perform the login, after login Auth0 will redirect to callback
