@@ -1,24 +1,22 @@
-// Load environment variables from .env
-require('dotenv').config();
+const config = require('./config');
 
-const express = require('express');
-const mongoOptions = {useNewUrlParser: true, useUnifiedTopology: true};
-const mongoose = require('mongoose');
-const cookieSession = require('cookie-session');
-const configuration = require('./config/configuration');
-const passport = require('passport');
-const Auth0Strategy = require('passport-auth0');
 const {requiresAuth} = require('express-openid-connect');
+const Auth0Strategy = require('passport-auth0');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const cors = require('cors');
-const util = require('util');
-const url = require('url');
+const express = require('express');
+const mongoose = require('mongoose');
+const passport = require('passport');
 const querystring = require('querystring');
-//routes
+const url = require('url');
+const util = require('util');
+
 const apiRoutes = require('./routes/api-routes');
-const topicsRoutes = require('./routes/topics-routes');
 const meetingsRoutes = require('./routes/meetings-routes');
+const topicsRoutes = require('./routes/topics-routes');
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -30,23 +28,17 @@ app.use(cookieParser());
 app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
-    keys: [configuration.session.cookieKey],
+    keys: [config.get('server.session.cookieKey')],
   })
 );
 
-const auth0Config = {
-  domain: process.env.AUTH0_DOMAIN,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback',
-};
-
+const auth0Config = config.get('auth0');
 console.log('Auth0 Configuration', auth0Config);
 
-// Configure Passport to use Auth0
 const strategy = new Auth0Strategy(auth0Config, (accessToken, refreshToken, extraParams, profile, done) => {
   return done(null, profile, extraParams.id_token);
 });
+
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -54,32 +46,39 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
+
 passport.use(strategy);
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app listen
-app.listen(3001, () => {
+async function connectDB() {
+  const {host, resource, query, name} = config.get('mongo.uri');
+  const dbCredentials = config.get('mongo.credentials');
+
+  const settings = {
+    ...dbCredentials,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+  const dbURI = `${name}://${host}/${resource}${query}`;
+  console.log('Trying to connect to mongodb [URI] ', {dbURI});
+
   try {
-    console.log('app now listening for requests on port 3001');
+    const connection = await mongoose.connect(dbURI, settings);
+    console.log('MoongoDB Connected');
+    return connection;
   } catch (err) {
-    console.log(err);
+    console.log('MoongoDB not connected', err);
   }
-});
+  return null;
+}
 
-// connect to mongodb
-mongoose
-  .connect(configuration.mongodb.dbURI, mongoOptions)
-  .then(() => console.log('Connected to mongodb'))
-  .catch((err) => console.log('Could not connect to mongodb', err.message));
-
-// set up routes
 app.use(apiRoutes);
 app.use(topicsRoutes);
 app.use(meetingsRoutes);
 
-// * SECURED MIDDLEWARE
 const secured = (req, res, next) => {
   const token = req.cookies['auth0-token'];
   if (!token && !req.user) {
@@ -101,10 +100,8 @@ app.get('/user', secured, (req, res) => {
     const {displayName, id, nickname, picture} = req.user;
     res.json({displayName, id, nickname, picture, role: 'user'});
   }
-  // res.redirect('http://localhost:3001/');
 });
 
-// Perform the login, after login Auth0 will redirect to callback
 app.get(
   '/login',
   passport.authenticate('auth0', {
@@ -137,11 +134,10 @@ app.get('/callback', (req, res, next) => {
   })(req, res, next);
 });
 
-// profile
 app.get('/profile', requiresAuth(), (req, res) => {
   res.send(JSON.stringify(req.openid.user));
 });
-// * LOGOUT
+
 app.get('/logout', (req, res) => {
   res.clearCookie('auth0-token', {path: '/'});
   res.clearCookie('auth0.is.authenticated', {path: '/'});
@@ -160,4 +156,10 @@ app.get('/logout', (req, res) => {
   logoutURL.search = searchString;
 
   res.redirect('http://localhost:3000/login');
+});
+
+connectDB().then(() => {
+  app.listen(3001, () => {
+    console.log('app now listening for requests on port 3001');
+  });
 });
