@@ -99,7 +99,7 @@ app.get('/check', secured, (req, res) => {
 app.get('/user', secured, (req, res) => {
   if (req.user) {
     const {displayName, id, nickname, picture} = req.user;
-    res.json({displayName, id, nickname, picture, role: 'user'});
+    res.json(req.user);
   }
   // res.redirect('http://localhost:3001/');
 });
@@ -143,21 +143,9 @@ app.get('/profile', requiresAuth(), (req, res) => {
 });
 // * LOGOUT
 app.get('/logout', (req, res) => {
+  req.logout();
   res.clearCookie('auth0-token', {path: '/'});
   res.clearCookie('auth0.is.authenticated', {path: '/'});
-  req.logout();
-
-  var returnTo = req.protocol + '://' + req.hostname;
-  var port = req.connection.localPort;
-  if (port !== undefined && port !== 80 && port !== 443) {
-    returnTo += ':' + port;
-  }
-  var logoutURL = new url.URL(util.format('http://%s/v2/logout', process.env.AUTH0_DOMAIN));
-  var searchString = querystring.stringify({
-    client_id: process.env.AUTH0_CLIENT_ID,
-    returnTo: returnTo,
-  });
-  logoutURL.search = searchString;
-
-  res.redirect('http://localhost:3000/login');
+  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${process.env.AUTH0_LOGIN_URL}`;
+  res.redirect(logoutURL);
 });
