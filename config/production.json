@@ -1,31 +1,8 @@
 {
-  "config_secret": "secret",
-  "server": {
-    "port": 3001,
-    "session": {
-      "cookieKey": "!secret|a478b0a821c444ed24cdef2a54ed07692e746e710736e6330948d51faf8c90cbb5ab55f857564cd99d19ad2c4781215121e9630310489b516446f790ba988442991b56eb2979b116e40650354bd838664ecd3c9c4cb43228bb75bd7eec2526053d76467ef2e767d042e17a8ddcab7cc192f038c1e3efc87521908587216472d3e184f59e0dae3c991bfef7779b515ca6bba0a0"
-    }
-  },
-  "mongo": {
-    "uri": {
-      "host": "!secret|06cf0e6b3b627b15e5e6050b90eca47f2a0827e363b63436c570c637da98a7a76be3f3b090bc9710d31393d8ade41e0961cfeb5b4312a48920dfe69182c9b8f12cc38fda9e80b15053da0a236d7748f028686ef621a63cee273dfedce0a2fdeab8ef1824e98ea4d64e80a44073f023ad53ee545157acd8f71d",
-      "resource": "crud_mongodb",
-      "query": "?retryWrites=true&w=majority",
-      "name": "mongodb+srv"
-    },
-    "credentials": {
-      "user": "admin",
-      "pass": "!secret|270dd0caa8ef5612f8767e181d1a8ae6405bfedb8414b466a52cdfcd22fca98981810b68045657aaf5b4e8913f5dc90516be10aa2d18c8318aff1a7ca4af633c012296f6b3f50db0e4b44ae949e34e2ed218a0074d76133034a997f9764965cfa1bd668b3c"
-    }
-  },
   "auth0": {
     "domain": "meet-up.eu.auth0.com",
     "clientID": "Sqnzzkh0scfWWt9gH7OOtRCNCYC1kcEA",
     "clientSecret": "!secret|e92d744cd63fb4eb6d6753266bdf15877f050dfc4bd87cbbf556de0597f245efde94185f204a4cadb0456438ab340adb84e5dc526762d390346df3154d73a5fd8920bd45a0d5c72d6690881f9a023cdeee16e9c522f018ef61a86d664e100ad865b4713287a035dcf581cf783f010cf7722a5ceea5faf737f0e1007d4808e696a1eefebae9825f3bc5f1392f9c54aa05394813d275eccef7a27b67dd8459d25c",
     "callbackURL": "https://develop.ms.codingtree.pl/api/callback"
-  },
-  "google": {
-    "clientID": "662772893862-9g720g88m09p4pa5kvmh71j2a1n0iuvn.apps.googleusercontent.com",
-    "clientSecret": "!secret|839497e954541862df2b04560eb8580752cc8d6f686b10a5446f932551ec171d6bdb7d04834955dfb867ae6c3531c6e7a3dc75f867f01eca61d41dafcc317262b865143e42bed3a3e929e4395562f18b62ba7d5316e69d1b65b8c54d0718d87faaa72bbc2d6452ef8929cae144b2bb2b3ca9e725cbf42a9f"
   }
 }
