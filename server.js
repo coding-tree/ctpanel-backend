@@ -52,6 +52,8 @@ passport.use(strategy);
 app.use(passport.initialize());
 app.use(passport.session());
 
+const PORT = config.get('server.port');
+
 async function connectDB() {
   const {host, resource, query, name} = config.get('mongo.uri');
   const dbCredentials = config.get('mongo.credentials');
@@ -92,7 +94,7 @@ app.get('/check', secured, (req, res) => {
   if (req.user) {
     return res.send('ok');
   }
-  return res.redirect('http://localhost:3001/login');
+  return res.redirect(`${process.env.REACT_APP_API}/login`);
 });
 
 app.get('/user', secured, (req, res) => {
@@ -129,7 +131,7 @@ app.get('/callback', (req, res, next) => {
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
 
-      res.redirect('http://localhost:3000');
+      res.redirect(process.env.AUTH0_LOGIN_URL);
     });
   })(req, res, next);
 });
@@ -142,12 +144,14 @@ app.get('/logout', (req, res) => {
   req.logout();
   res.clearCookie('auth0-token', {path: '/'});
   res.clearCookie('auth0.is.authenticated', {path: '/'});
-  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${process.env.AUTH0_LOGIN_URL}`;
+  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${encodeURIComponent(
+    process.env.AUTH0_LOGIN_URL
+  )}/logout`;
   res.redirect(logoutURL);
 });
 
 connectDB().then(() => {
-  app.listen(3001, () => {
-    console.log('app now listening for requests on port 3001');
+  app.listen(PORT, () => {
+    console.log(`app now listening for requests on port ${PORT}`);
   });
 });
