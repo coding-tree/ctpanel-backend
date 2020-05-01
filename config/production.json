@@ -1,5 +1,8 @@
 {
   "config_secret": "secret",
+  "client": {
+    "url": "https://develop.ms.codingtree.pl"
+  },
   "server": {
     "port": 3001,
     "session": {

@@ -1,3 +1,1 @@
 MEETUP_SECRET=insert secret here and rename env file to .env (dot env -> mv env .env)
-AUTH0_DOMAIN=meet-up.eu.auth0.com
-AUTH0_LOGIN_URL=http://localhost:3000

@@ -9,9 +9,6 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const querystring = require('querystring');
-const url = require('url');
-const util = require('util');
 
 const apiRoutes = require('./routes/api-routes');
 const meetingsRoutes = require('./routes/meetings-routes');
@@ -94,7 +91,7 @@ app.get('/check', secured, (req, res) => {
   if (req.user) {
     return res.send('ok');
   }
-  return res.redirect(`${process.env.AUTH0_LOGIN_URL}/login`);
+  return res.redirect(`${config.get("client.url")}/login`);
 });
 
 app.get('/user', secured, (req, res) => {
@@ -128,10 +125,7 @@ app.get('/callback', (req, res, next) => {
         return next(err);
       }
       res.cookie('auth0-token', info, {httpOnly: true});
-      const returnTo = req.session.returnTo;
-      delete req.session.returnTo;
-
-      res.redirect(process.env.AUTH0_LOGIN_URL);
+      res.redirect(config.get("client.url"));
     });
   })(req, res, next);
 });
@@ -144,7 +138,7 @@ app.get('/logout', (req, res) => {
   req.logout();
   res.clearCookie('auth0-token', {path: '/'});
   res.clearCookie('auth0.is.authenticated', {path: '/'});
-  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${process.env.AUTH0_LOGIN_URL}/logout`;
+  const logoutURL = `https://${auth0Config.domain}/v2/logout?returnTo=${config.get("client.url")}/logout`;
   res.redirect(logoutURL);
 });
 
