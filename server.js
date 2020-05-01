@@ -94,7 +94,7 @@ app.get('/check', secured, (req, res) => {
   if (req.user) {
     return res.send('ok');
   }
-  return res.redirect(`${process.env.REACT_APP_API}/login`);
+  return res.redirect(`${process.env.AUTH0_LOGIN_URL}/login`);
 });
 
 app.get('/user', secured, (req, res) => {
@@ -144,9 +144,7 @@ app.get('/logout', (req, res) => {
   req.logout();
   res.clearCookie('auth0-token', {path: '/'});
   res.clearCookie('auth0.is.authenticated', {path: '/'});
-  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${encodeURIComponent(
-    process.env.AUTH0_LOGIN_URL
-  )}/logout`;
+  const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${process.env.AUTH0_LOGIN_URL}/logout`;
   res.redirect(logoutURL);
 });
 
