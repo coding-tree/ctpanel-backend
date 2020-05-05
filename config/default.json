@@ -4,6 +4,7 @@
     "url": "http://localhost:3000"
   },
   "server": {
+    "url": "http://localhost:3001",
     "port": 3001,
     "session": {
       "cookieKey": "!secret|a478b0a821c444ed24cdef2a54ed07692e746e710736e6330948d51faf8c90cbb5ab55f857564cd99d19ad2c4781215121e9630310489b516446f790ba988442991b56eb2979b116e40650354bd838664ecd3c9c4cb43228bb75bd7eec2526053d76467ef2e767d042e17a8ddcab7cc192f038c1e3efc87521908587216472d3e184f59e0dae3c991bfef7779b515ca6bba0a0"
