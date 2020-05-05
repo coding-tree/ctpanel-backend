@@ -2,7 +2,9 @@
   "name": "ctpanel-backend",
   "version": "0.1.0",
   "scripts": {
-    "dev": "nodemon server.js"
+    "start:dev": "cross-env NODE_ENV=dev nodemon server.js",
+    "start:hotel": "cross-env NODE_ENV=hotel nodemon server.js",
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.0",
@@ -11,6 +13,7 @@
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "cryptr": "^6.0.1",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
