@@ -1,10 +1,10 @@
 {
   "config_secret": "secret",
   "client": {
-    "url": "https://client.localhost"
+    "url": "http://client.localhost"
   },
   "server": {
-    "url": "https://server.localhost",
+    "url": "http://server.localhost",
     "port": 3001,
     "session": {
       "cookieKey": "!secret|a478b0a821c444ed24cdef2a54ed07692e746e710736e6330948d51faf8c90cbb5ab55f857564cd99d19ad2c4781215121e9630310489b516446f790ba988442991b56eb2979b116e40650354bd838664ecd3c9c4cb43228bb75bd7eec2526053d76467ef2e767d042e17a8ddcab7cc192f038c1e3efc87521908587216472d3e184f59e0dae3c991bfef7779b515ca6bba0a0"
@@ -26,7 +26,7 @@
     "domain": "meet-up.eu.auth0.com",
     "clientID": "Sqnzzkh0scfWWt9gH7OOtRCNCYC1kcEA",
     "clientSecret": "!secret|e92d744cd63fb4eb6d6753266bdf15877f050dfc4bd87cbbf556de0597f245efde94185f204a4cadb0456438ab340adb84e5dc526762d390346df3154d73a5fd8920bd45a0d5c72d6690881f9a023cdeee16e9c522f018ef61a86d664e100ad865b4713287a035dcf581cf783f010cf7722a5ceea5faf737f0e1007d4808e696a1eefebae9825f3bc5f1392f9c54aa05394813d275eccef7a27b67dd8459d25c",
-    "callbackURL": "https://server.localhost/callback"
+    "callbackURL": "http://server.localhost/callback"
   },
   "google": {
     "clientID": "662772893862-9g720g88m09p4pa5kvmh71j2a1n0iuvn.apps.googleusercontent.com",

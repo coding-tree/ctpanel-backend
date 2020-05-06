@@ -34,7 +34,7 @@ app.use(
       }
       return callback(null, true);
     },
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -130,22 +130,29 @@ app.get(
 );
 
 app.get('/callback', (req, res, next) => {
-  passport.authenticate('auth0', (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.redirect('/login');
-    }
-
-    req.logIn(user, (err) => {
+  try {
+    passport.authenticate('auth0', (err, user, info) => {
       if (err) {
-        return next(err);
+        console.error('error while fetching callback', err);
+        res.send({message: 'error while fetching callback', err});
+        return err;
       }
-      res.cookie('auth0-token', info, {httpOnly: true});
-      res.redirect(clientUrl);
-    });
-  })(req, res, next);
+      if (!user) {
+        return res.redirect('/login');
+      }
+
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        res.cookie('auth0-token', info, {httpOnly: true});
+        res.redirect(clientUrl);
+      });
+    })(req, res, next);
+  } catch (err) {
+    console.error('error while fetching callback', err);
+    res.send({message: 'error while fetching callback', err});
+  }
 });
 
 app.get('/profile', requiresAuth(), (req, res) => {
