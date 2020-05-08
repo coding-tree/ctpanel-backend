@@ -9,6 +9,7 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const logger = require('./logger');
 
 const apiRoutes = require('./routes/api-routes');
 const meetingsRoutes = require('./routes/meetings-routes');
@@ -48,7 +49,7 @@ app.use(
 );
 
 const auth0Config = config.get('auth0');
-console.log('Auth0 Configuration', auth0Config);
+logger.info('Auth0 Configuration', auth0Config);
 
 const strategy = new Auth0Strategy(auth0Config, (accessToken, refreshToken, extraParams, profile, done) => {
   return done(null, profile, extraParams.id_token);
@@ -80,14 +81,14 @@ async function connectDB() {
     useFindAndModify: false,
   };
   const dbURI = `${name}://${host}/${resource}${query}`;
-  console.log('Trying to connect to mongodb [URI] ', {dbURI});
+  logger.debug('Trying to connect to mongodb [URI] ', {dbURI});
 
   try {
     const connection = await mongoose.connect(dbURI, settings);
-    console.log('MoongoDB Connected');
+    logger.info('MoongoDB Connected');
     return connection;
   } catch (err) {
-    console.log('MoongoDB not connected', err);
+    logger.error('MoongoDB not connected', err);
   }
   return null;
 }
@@ -105,7 +106,6 @@ const secured = (req, res, next) => {
 };
 
 app.get('/check', secured, (req, res) => {
-  console.log(req);
   if (req.user) {
     return res.send('ok');
   }
@@ -133,7 +133,7 @@ app.get('/callback', (req, res, next) => {
   try {
     passport.authenticate('auth0', (err, user, info) => {
       if (err) {
-        console.error('error while fetching callback', err);
+        logger.error('error while fetching callback', err);
         res.send({message: 'error while fetching callback', err});
         return err;
       }
@@ -150,7 +150,7 @@ app.get('/callback', (req, res, next) => {
       });
     })(req, res, next);
   } catch (err) {
-    console.error('error while fetching callback', err);
+    logger.error('error while fetching callback', err);
     res.send({message: 'error while fetching callback', err});
   }
 });
