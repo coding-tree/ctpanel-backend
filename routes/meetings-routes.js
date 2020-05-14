@@ -24,6 +24,16 @@ meetings.post('/meetings', async (req, res) => {
   }
 });
 
+meetings.post('/test', async (req, res) => {
+  let dateToConvert = `${req.body.date} ${req.body.time}`;
+  let date = new Date(dateToConvert);
+  let timestamp = date.getTime();
+  req.body.date = timestamp;
+  delete req.body.time;
+  console.log(req.body);
+  res.send('ok');
+});
+
 meetings.put('/meetings/:id', async (req, res) => {
   const {error} = handleMeeting(req.body);
   if (error) return res.status(400).send(error.details[0].message);
