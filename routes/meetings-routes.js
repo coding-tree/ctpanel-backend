@@ -25,13 +25,24 @@ meetings.post('/meetings', async (req, res) => {
 });
 
 meetings.post('/test', async (req, res) => {
-  let dateToConvert = `${req.body.date} ${req.body.time}`;
-  let date = new Date(dateToConvert);
-  let timestamp = date.getTime();
-  req.body.date = timestamp;
-  delete req.body.time;
-  console.log(req.body);
-  res.send('ok');
+  const {error} = handleMeeting(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+  const meeting = new MeetingModel({
+    date: req.body.date,
+    topic: req.body.topic,
+    leader: req.body.leader,
+    duration: req.body.duration,
+    resourcesURL: req.body.resourcesURL || '',
+    userfulLinks: req.body.userfulLinks || [],
+    description: req.body.description,
+    tags: req.body.tags,
+  });
+  try {
+    const savedMeeting = await meeting.save();
+    res.json(savedMeeting);
+  } catch (err) {
+    res.status(400).send(err);
+  }
 });
 
 meetings.put('/meetings/:id', async (req, res) => {

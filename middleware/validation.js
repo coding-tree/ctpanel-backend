@@ -5,11 +5,11 @@ const Joi = require('@hapi/joi');
 const handleMeeting = (data) => {
   const schema = Joi.object({
     date: Joi.date().timestamp().required(),
-    topic: Joi.string().min(6).required(),
-    leader: Joi.string().min(3).max(128).required(),
+    topic: Joi.string().min(5).required(),
+    leader: Joi.string().required(),
     duration: Joi.string().min(3).max(8),
-    resourcesURL: Joi.link(),
-    meetingHref: Joi.link(),
+    resourcesURL: Joi.string(),
+    meetingHref: Joi.string(),
     usefulLinks: Joi.array(),
     description: Joi.string().max(1024),
     tags: Joi.array().items(Joi.string()).required(),
@@ -19,7 +19,7 @@ const handleMeeting = (data) => {
 
 const handleTopic = (data) => {
   const schema = Joi.object({
-    topic: Joi.string().min(6).max(256).required(),
+    topic: Joi.string().min(5).max(256).required(),
     votes: Joi.number(),
     addedDate: Joi.date().timestamp(),
     userAdded: Joi.string().min(6).max(40),
