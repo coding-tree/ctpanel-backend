@@ -46,6 +46,19 @@ meetings.get('/meetings', paginatedResults(MeetingModel), async (req, res) => {
   }
 });
 
+// get meetings archive
+meetings.get('/meetings/archive', paginatedResults(MeetingModel), async (req, res) => {
+  try {
+    const result = await MeetingModel.find({
+      date: {$lte: new Date().getTime()},
+    });
+    console.log(res.paginatedResults);
+    res.send(result);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 // get all meetings sorted by date
 meetings.get('/meetings/sorted', async (req, res) => {
   try {
@@ -80,18 +93,6 @@ meetings.get('/meetings/last-one', async (req, res) => {
     })
       .sort({date: -1})
       .limit(1);
-    res.json(result);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-// get meetings archive
-meetings.get('/meetings/archive', async (req, res) => {
-  try {
-    const result = await MeetingModel.find({
-      date: {$lte: new Date().getTime()},
-    });
     res.json(result);
   } catch (err) {
     res.status(500).send(err);
