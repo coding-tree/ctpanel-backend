@@ -28,5 +28,19 @@ const handleTopic = (data) => {
   return schema.validate(data);
 };
 
+const handleUser = (data) => {
+  const schema = Joi.object({
+    userNickName: Joi.String(),
+    userFirstName: Joi.String(),
+    userSecondName: Joi.String(),
+    userAge: Joi.Number(),
+    userTechnologies: Joi.Array(),
+    usuerDescription: Joi.String(),
+    userSocials: Joi.Object(),
+  });
+  return schema.validate(data);
+};
+
 module.exports.handleMeeting = handleMeeting;
 module.exports.handleTopic = handleTopic;
+module.exports.handleUser = handleUser;
