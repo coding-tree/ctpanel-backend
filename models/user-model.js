@@ -2,27 +2,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  username: String,
-  googleId: String,
-  thumbnail: String,
-  // custom
+  userNickName: String,
   userFirstName: String,
-  userLastName: String,
-  userEmail: String,
-  userPhone: Number,
-  userGoogle: String,
-  userFacebook: String,
-  userGithub: String,
-  userDiscord: String,
-  userPresence: String,
-  userTimeSpent: String,
-  userAverageMark: String,
-  userMaxMark: Number,
-  userMinMark: Number,
-  userLongestTime: String,
-  userLeadershipAmount: Number,
-  // to hash
-  userPassword: String,
+  userSecondName: String,
+  userAge: Number,
+  userTechnologies: Array,
+  usuerDescription: String,
+  userSocials: Object,
 });
 
 const User = mongoose.model('user', userSchema);

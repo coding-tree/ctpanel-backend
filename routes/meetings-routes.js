@@ -52,7 +52,6 @@ meetings.get('/meetings/archive', paginatedResults(MeetingModel), async (req, re
     const result = await MeetingModel.find({
       date: {$lte: new Date().getTime()},
     });
-    console.log(res.paginatedResults);
     res.send(result);
   } catch (err) {
     res.status(500).send(err);

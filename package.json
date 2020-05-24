@@ -38,10 +38,6 @@
     "concurrently": "^4.1.2",
     "nodemon": "^1.19.4"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/codingtreefoundation/meet-up"
-  },
   "main": "server.js",
   "keywords": [],
   "license": "ISC"
