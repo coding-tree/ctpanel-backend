@@ -26,7 +26,7 @@
     "domain": "meet-up.eu.auth0.com",
     "clientID": "Sqnzzkh0scfWWt9gH7OOtRCNCYC1kcEA",
     "clientSecret": "!secret|e92d744cd63fb4eb6d6753266bdf15877f050dfc4bd87cbbf556de0597f245efde94185f204a4cadb0456438ab340adb84e5dc526762d390346df3154d73a5fd8920bd45a0d5c72d6690881f9a023cdeee16e9c522f018ef61a86d664e100ad865b4713287a035dcf581cf783f010cf7722a5ceea5faf737f0e1007d4808e696a1eefebae9825f3bc5f1392f9c54aa05394813d275eccef7a27b67dd8459d25c",
-    "callbackURL": "https://ms.codingtree.pl/api/callback"
+    "callbackURL": "https://api.ms.codingtree.pl/callback"
   },
   "google": {
     "clientID": "662772893862-9g720g88m09p4pa5kvmh71j2a1n0iuvn.apps.googleusercontent.com",
