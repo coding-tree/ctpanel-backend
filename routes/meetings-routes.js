@@ -72,7 +72,7 @@ meetings.get('/meetings/sorted', async (req, res) => {
 meetings.get('/meetings/incoming', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit);
-    const result = await MeetingModel.find({
+    const result = await MeetingModel.findOne({
       date: {$gte: new Date().getTime()},
     })
       .sort({date: 1})
