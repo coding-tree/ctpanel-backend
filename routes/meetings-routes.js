@@ -26,6 +26,7 @@ meetings.post('/meetings', async (req, res) => {
 
 meetings.put('/meetings/:id', async (req, res) => {
   const {error} = handleMeeting(req.body);
+  console.log(error);
   if (error) return res.status(400).send(error.details[0].message);
   try {
     const meeting = await MeetingModel.findById(req.params.id).exec();
