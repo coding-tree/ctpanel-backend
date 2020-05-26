@@ -22,10 +22,6 @@ topics.post('/topics', async (req, res) => {
   }
 });
 
-topics.post('/topics/test', async (req, res) => {
-  res.send(req.body);
-});
-
 // get paginated topics
 topics.get('/topics', paginatedResults(TopicModel), async (req, res) => {
   try {
