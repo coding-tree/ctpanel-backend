@@ -6,15 +6,17 @@ const {handleMeeting} = require('../middleware/validation');
 meetings.post('/meetings', async (req, res) => {
   const {error} = handleMeeting(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+  const {date, topic, leader, duration, meetingHref, resourcesURL, userfulLinks, description, tags} = req.body || {};
   const meeting = new MeetingModel({
-    date: req.body.date,
-    topic: req.body.topic,
-    leader: req.body.leader,
-    duration: req.body.duration,
-    resourcesURL: req.body.resourcesURL,
-    userfulLinks: req.body.userfulLinks,
-    description: req.body.description,
-    tags: req.body.tags,
+    date,
+    topic,
+    leader,
+    duration,
+    meetingHref,
+    resourcesURL,
+    userfulLinks,
+    description,
+    tags,
   });
   try {
     const savedMeeting = await meeting.save();
@@ -26,7 +28,7 @@ meetings.post('/meetings', async (req, res) => {
 
 meetings.put('/meetings/:id', async (req, res) => {
   const {error} = handleMeeting(req.body);
-  console.log(error);
+
   if (error) return res.status(400).send(error.details[0].message);
   try {
     const meeting = await MeetingModel.findById(req.params.id).exec();
