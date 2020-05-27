@@ -1,6 +1,5 @@
 const config = require('./config');
 
-const {requiresAuth} = require('express-openid-connect');
 const Auth0Strategy = require('passport-auth0');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -151,10 +150,6 @@ app.get('/callback', (req, res, next) => {
     logger.error('error while fetching callback', err);
     res.send({message: 'error while fetching callback', err});
   }
-});
-
-app.get('/profile', requiresAuth(), (req, res) => {
-  res.send(JSON.stringify(req.openid.user));
 });
 
 app.get('/logout', (req, res) => {
