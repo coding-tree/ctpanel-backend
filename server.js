@@ -114,6 +114,7 @@ app.get('/check', secured, (req, res) => {
 
 app.get('/user', secured, (req, res) => {
   if (req.user) {
+    app.set('user', req.user);
     const {displayName, id, nickname, picture} = req.user;
     res.json(req.user);
   }

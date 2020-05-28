@@ -3,10 +3,11 @@ const Schema = mongoose.Schema;
 
 const topicSchema = new Schema({
   topic: String,
-  votes: { type: Number, default: 0 },
-  addedDate: { type: Date, default: Date.now },
-  userAdded: { type: String, default: "Gall Anonim" },
-  tags: Array
+  votes: {type: Number, default: 0},
+  addedDate: {type: Date, default: Date.now},
+  userAdded: {type: String, default: 'Gall Anonim'},
+  usersVote: [{id: String, vote: String}],
+  tags: Array,
 });
 
 const Topic = mongoose.model('topics', topicSchema);

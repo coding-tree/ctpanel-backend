@@ -22,8 +22,38 @@ topics.post('/topics', async (req, res) => {
   }
 });
 
+// Voting
+topics.put('/topics/vote/:id', async (req, res) => {
+  const topic = await TopicModel.findById(req.params.id).exec();
+  const user = req.app.get('user');
+  if (!user) return res.redirect('/login');
+  if (!topic) return res.status(404).send('Podany temat nie istnieje');
+  const {id} = user;
+  const {vote} = req.query;
+  const hasUserVoted = topic.usersVote.find((el) => el.id === id);
+
+  if (!hasUserVoted) {
+    if (vote === 'up') topic.usersVote.push({id, vote});
+    else if (vote === 'down') topic.usersVote.push({id, vote});
+    else res.status(400).send('Bad request');
+
+    const result = await topic.save();
+    return res.json(result);
+  }
+  if (hasUserVoted) {
+    if (vote === 'up') hasUserVoted.vote = 'up';
+    else if (vote === 'down') hasUserVoted.vote = 'down';
+    else res.status(400).send('Bad request');
+
+    const result = await topic.save();
+    return res.json(result);
+  }
+  res.status(500).send('Coś poszło nie tak');
+});
+
 // get paginated topics
 topics.get('/topics', paginatedResults(TopicModel), async (req, res) => {
+  console.log(req.app.get('user'));
   try {
     res.json(res.paginatedResults);
   } catch (err) {
