@@ -47,17 +47,16 @@ topics.put('/topics/:id', async (req, res) => {
 });
 
 // delete specific meeting
-topics.get('/topicss/:id', async (req, res) => {
+topics.delete('/topics/:id', async (req, res) => {
   try {
     const topic = await TopicModel.find({_id: req.params.id}).exec();
     const topicName = await topic[0].topic;
-    console.log('topicName', topicName);
-    // const isTopicInAnyMeeting = await MeetingModel.find({$text: {$search: topicName}}).exec();
-    const isTopicInAnyMeeting = await MeetingModel.findOne({topic: topicName});
-    console.log('isTopicInAnyMeeting', isTopicInAnyMeeting);
-    // const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
-    // res.json(result);
-    res.send(isTopicInAnyMeeting);
+    const isTopicInAnyMeeting = await MeetingModel.find({topic: topicName});
+    if (isTopicInAnyMeeting) {
+      return res.status(500).send(`Cannot remove topic "${topicName}", due to the fact that it is related with at least one meeting.`);
+    }
+    const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
+    return res.json(result);
   } catch (err) {
     res.status(500).send(err);
   }
