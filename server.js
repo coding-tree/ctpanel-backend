@@ -1,6 +1,5 @@
 const config = require('./config');
 
-const {requiresAuth} = require('express-openid-connect');
 const Auth0Strategy = require('passport-auth0');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -98,8 +97,7 @@ app.use(topicsRoutes);
 app.use(meetingsRoutes);
 
 const secured = (req, res, next) => {
-  const token = req.cookies['auth0-token'];
-  if (!token && !req.user) {
+  if (!req.user) {
     res.status(401).send('Access Denied. No token provided');
   }
   next();
@@ -114,7 +112,6 @@ app.get('/check', secured, (req, res) => {
 
 app.get('/user', secured, (req, res) => {
   if (req.user) {
-    const {displayName, id, nickname, picture} = req.user;
     res.json(req.user);
   }
 });
@@ -143,9 +140,9 @@ app.get('/callback', (req, res, next) => {
 
       req.logIn(user, (err) => {
         if (err) {
+
           return next(err);
         }
-        res.cookie('auth0-token', info, {httpOnly: true});
         res.redirect(clientUrl);
       });
     })(req, res, next);
@@ -155,14 +152,8 @@ app.get('/callback', (req, res, next) => {
   }
 });
 
-app.get('/profile', requiresAuth(), (req, res) => {
-  res.send(JSON.stringify(req.openid.user));
-});
-
 app.get('/logout', (req, res) => {
   req.logout();
-  res.clearCookie('auth0-token', {path: '/'});
-  res.clearCookie('auth0.is.authenticated', {path: '/'});
   const logoutURL = `https://${auth0Config.domain}/v2/logout?returnTo=${clientUrl}/logout`;
   res.redirect(logoutURL);
 });
