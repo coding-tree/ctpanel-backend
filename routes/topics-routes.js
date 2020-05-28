@@ -1,5 +1,6 @@
 const topics = require('express').Router();
 const TopicModel = require('../models/topic-model');
+const MeetingModel = require('../models/meeting-model');
 const paginatedResults = require('../middleware/paginate');
 const {handleTopic} = require('../middleware/validation');
 // #region topics
@@ -78,8 +79,14 @@ topics.put('/topics/:id', async (req, res) => {
 // delete specific meeting
 topics.delete('/topics/:id', async (req, res) => {
   try {
+    const topic = await TopicModel.find({_id: req.params.id}).exec();
+    const topicName = await topic[0].topic;
+    const isTopicInAnyMeeting = await MeetingModel.findOne({topic: topicName});
+    if (isTopicInAnyMeeting) {
+      return res.status(500).send(`Cannot remove topic "${topicName}", due to the fact that it is related with at least one meeting.`);
+    }
     const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
-    res.json(result);
+    return res.json(result);
   } catch (err) {
     res.status(500).send(err);
   }
