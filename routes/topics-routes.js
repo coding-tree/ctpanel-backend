@@ -10,7 +10,6 @@ topics.post('/topics', async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
   const topic = new TopicModel({
     topic: req.body.topic,
-    votes: req.body.votes,
     addedDate: req.body.addedDate,
     userAdded: req.body.userAdded,
     tags: req.body.tags,
@@ -33,11 +32,20 @@ topics.put('/topics/vote/:id', async (req, res) => {
   const {vote} = req.query;
   const hasUserVoted = topic.usersVote.find((el) => el.id === id);
 
+  const calculateResult = () => {
+    let voteResult = 0;
+    topic.usersVote.map((el) => {
+      el.vote === 'up' && voteResult++;
+      el.vote === 'down' && voteResult--;
+    });
+    return voteResult;
+  };
+
   if (!hasUserVoted) {
     if (vote === 'up') topic.usersVote.push({id, vote});
     else if (vote === 'down') topic.usersVote.push({id, vote});
     else res.status(400).send('Bad request');
-
+    topic.votes = calculateResult();
     const result = await topic.save();
     return res.json(result);
   }
@@ -45,16 +53,16 @@ topics.put('/topics/vote/:id', async (req, res) => {
     if (vote === 'up') hasUserVoted.vote = 'up';
     else if (vote === 'down') hasUserVoted.vote = 'down';
     else res.status(400).send('Bad request');
-
+    topic.votes = calculateResult();
     const result = await topic.save();
     return res.json(result);
   }
+
   res.status(500).send('Coś poszło nie tak');
 });
 
 // get paginated topics
 topics.get('/topics', paginatedResults(TopicModel), async (req, res) => {
-  console.log(req.app.get('user'));
   try {
     res.json(res.paginatedResults);
   } catch (err) {
