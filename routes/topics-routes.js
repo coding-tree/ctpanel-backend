@@ -1,5 +1,6 @@
 const topics = require('express').Router();
 const TopicModel = require('../models/topic-model');
+const MeetingModel = require('../models/meeting-model');
 const paginatedResults = require('../middleware/paginate');
 const {handleTopic} = require('../middleware/validation');
 // #region topics
@@ -46,10 +47,17 @@ topics.put('/topics/:id', async (req, res) => {
 });
 
 // delete specific meeting
-topics.delete('/topics/:id', async (req, res) => {
+topics.get('/topicss/:id', async (req, res) => {
   try {
-    const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
-    res.json(result);
+    const topic = await TopicModel.find({_id: req.params.id}).exec();
+    const topicName = await topic[0].topic;
+    console.log('topicName', topicName);
+    // const isTopicInAnyMeeting = await MeetingModel.find({$text: {$search: topicName}}).exec();
+    const isTopicInAnyMeeting = await MeetingModel.findOne({topic: topicName});
+    console.log('isTopicInAnyMeeting', isTopicInAnyMeeting);
+    // const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
+    // res.json(result);
+    res.send(isTopicInAnyMeeting);
   } catch (err) {
     res.status(500).send(err);
   }
