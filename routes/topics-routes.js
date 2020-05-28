@@ -51,7 +51,7 @@ topics.delete('/topics/:id', async (req, res) => {
   try {
     const topic = await TopicModel.find({_id: req.params.id}).exec();
     const topicName = await topic[0].topic;
-    const isTopicInAnyMeeting = await MeetingModel.find({topic: topicName});
+    const isTopicInAnyMeeting = await MeetingModel.findOne({topic: topicName});
     if (isTopicInAnyMeeting) {
       return res.status(500).send(`Cannot remove topic "${topicName}", due to the fact that it is related with at least one meeting.`);
     }
