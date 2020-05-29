@@ -1,5 +1,6 @@
 const meetings = require('express').Router();
 const MeetingModel = require('../models/meeting-model');
+const TopicModel = require('../models/topic-model');
 const paginatedResults = require('../middleware/paginate');
 const {handleMeeting} = require('../middleware/validation');
 
@@ -19,6 +20,16 @@ meetings.post('/meetings', async (req, res) => {
     tags,
   });
   try {
+    const topicExistsInDatabase = await TopicModel.findOne({topic: topic}).exec();
+    if (!topicExistsInDatabase) {
+      const newTopic = new TopicModel({
+        topic,
+      });
+      const savedTopic = await newTopic.save();
+      console.log('Added new topic into database.');
+    } else {
+      console.log('Topic exists in database, not adding it.');
+    }
     const savedMeeting = await meeting.save();
     res.json(savedMeeting);
   } catch (err) {
