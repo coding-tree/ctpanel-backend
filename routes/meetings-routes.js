@@ -26,9 +26,6 @@ meetings.post('/meetings', async (req, res) => {
         topic,
       });
       const savedTopic = await newTopic.save();
-      console.log('Added new topic into database.');
-    } else {
-      console.log('Topic exists in database, not adding it.');
     }
     const savedMeeting = await meeting.save();
     res.json(savedMeeting);
@@ -43,6 +40,16 @@ meetings.put('/meetings/:id', async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
   try {
     const meeting = await MeetingModel.findById(req.params.id).exec();
+    if (meeting) {
+      const topicExistsInDatabase = await TopicModel.findOne({topic: meeting.topic});
+      if (!topicExistsInDatabase) {
+        const newTopic = new TopicModel({
+          topic: meeting.topic,
+        });
+        const savedTopic = await newTopic.save();
+      } else {
+      }
+    }
     meeting.set(req.body);
     const result = await meeting.save();
     res.json(result);
