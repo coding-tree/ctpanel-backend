@@ -132,7 +132,8 @@ meetings.get('/meetings/last-one', async (req, res) => {
       date: {$lte: new Date().getTime()},
     })
       .sort({date: -1})
-      .limit(1);
+      .limit(1)
+      .exec();
     res.json(result);
   } catch (err) {
     res.status(500).send(err);
