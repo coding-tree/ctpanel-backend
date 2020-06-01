@@ -82,10 +82,10 @@ meetings.get('/meetings/archive', paginatedResults(MeetingModel), async (req, re
 // get meetings schedule with incoming meetings and from last week
 meetings.get('/meetings/schedule', paginatedResults(MeetingModel), async (req, res) => {
   try {
-    if (req.query.days && parseInt(req.query.days) > 0) {
-      const days = parseInt(req.query.days);
+    if (req.query.limit && parseInt(req.query.limit) > 0) {
+      const limit = parseInt(req.query.limit);
       const result = await MeetingModel.find({
-        date: {$gte: new Date().getTime() - 1000 * 24 * 60 * 60 * days},
+        date: {$gte: new Date().getTime() - 1000 * 24 * 60 * 60 * limit},
       });
       res.send(result);
     } else {
