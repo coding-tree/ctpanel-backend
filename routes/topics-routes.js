@@ -50,9 +50,14 @@ topics.put('/topics/vote/:id', async (req, res) => {
     return res.json(result);
   }
   if (hasUserVoted) {
-    if (vote === 'up') hasUserVoted.vote = 'up';
-    else if (vote === 'down') hasUserVoted.vote = 'down';
-    else res.status(400).send('Bad request');
+    if ((vote === 'up' && hasUserVoted.vote === 'up') || (vote === 'down' && hasUserVoted.vote === 'down')) {
+      const currentVote = topic.usersVote.find((topic) => topic.id === user.id);
+      const index = topic.usersVote.findIndex((user) => user.id === currentVote.id);
+      topic.usersVote.splice(index, 1);
+    } else if ((vote === 'up' && hasUserVoted.vote === 'down') || (vote === 'down' && hasUserVoted.vote === 'up')) {
+      hasUserVoted.vote = vote;
+      console.log('juzer juz glosowol 2');
+    } else res.status(400).send('Bad request');
     topic.votes = calculateResult();
     const result = await topic.save();
     return res.json(result);

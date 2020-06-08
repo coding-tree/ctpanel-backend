@@ -7,7 +7,7 @@ const {handleMeeting} = require('../middleware/validation');
 meetings.post('/meetings', async (req, res) => {
   const {error} = handleMeeting(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-  const {date, topic, leader, duration, meetingHref, resourcesURL, userfulLinks, description, tags} = req.body || {};
+  const {date, topic, leader, duration, meetingHref, resourcesURL, description, tags, usefulLinks} = req.body || {};
   const meeting = new MeetingModel({
     date,
     topic,
@@ -15,9 +15,9 @@ meetings.post('/meetings', async (req, res) => {
     duration,
     meetingHref,
     resourcesURL,
-    userfulLinks,
     description,
     tags,
+    usefulLinks,
   });
   try {
     const topicExistsInDatabase = await TopicModel.findOne({topic: topic}).exec();
