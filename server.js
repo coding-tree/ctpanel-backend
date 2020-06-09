@@ -79,7 +79,7 @@ async function connectDB() {
     useCreateIndex: true,
     useFindAndModify: false,
   };
-  const dbURI = `${name}://${host}/${resource}${query}`;
+  const dbURI = process.env.MONGO_DB_DEV || `${name}://${host}/${resource}${query}`;
   logger.debug('Trying to connect to mongodb [URI] ', {dbURI});
 
   try {
@@ -141,7 +141,6 @@ app.get('/callback', (req, res, next) => {
 
       req.logIn(user, (err) => {
         if (err) {
-
           return next(err);
         }
         res.redirect(clientUrl);
