@@ -24,6 +24,7 @@ const handleTopic = (data) => {
     addedDate: Joi.date().timestamp(),
     userAdded: Joi.string().min(6).max(40),
     tags: Joi.array().items(Joi.string()).required(),
+    description: Joi.string(),
   });
   return schema.validate(data);
 };

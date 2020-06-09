@@ -13,6 +13,7 @@ topics.post('/topics', async (req, res) => {
     addedDate: req.body.addedDate,
     userAdded: req.body.userAdded,
     tags: req.body.tags,
+    description: req.body.description,
   });
   try {
     const savedTopic = await topic.save();
