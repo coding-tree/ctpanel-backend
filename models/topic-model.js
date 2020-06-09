@@ -7,6 +7,7 @@ const topicSchema = new Schema({
   addedDate: {type: Date, default: Date.now},
   userAdded: {type: String, default: 'Gall Anonim'},
   usersVote: [{id: String, vote: String}],
+  description: {type: String, default: 'brak opisu dla tematu'},
   tags: Array,
 });
 
