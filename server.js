@@ -15,6 +15,7 @@ const meetingsRoutes = require('./routes/meetings-routes');
 const topicsRoutes = require('./routes/topics-routes');
 
 const clientUrl = config.get('client.url');
+const allowedHosts = config.get('client.allowedHosts', []);
 const serverUrl = config.get('server.url');
 
 const app = express();
@@ -24,15 +25,36 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 var allowedOrigins = [clientUrl, serverUrl];
 
+const isValidRefererOrClient = (origin) => {
+  logger.debug(`Verifing client url: ${origin}, allowedHosts: ${allowedHosts}, allowedOrigins: ${allowedOrigins}`);
+  const originUrl = new URL(origin);
+  return allowedHosts.indexOf(originUrl.hostname) > -1 || allowedOrigins.indexOf(origin) > -1;
+};
+
+const withReturnToUrl = (req, res, next) => {
+  const returnToParam = req.query.returnTo;
+  const referer = req.get('referer');
+  logger.debug('Login request', {
+    referer,
+    returnToParam,
+  });
+  const returnTo = returnToParam ? returnToParam : referer ? referer : clientUrl;
+  const fiexedRedirectTo = returnTo.replace(/\/$/, '');
+  req.returnTo = fiexedRedirectTo;
+  next();
+};
+
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
-        return callback(new Error(msg), false);
+
+      if (isValidRefererOrClient(origin)) {
+        return callback(null, true);
       }
-      return callback(null, true);
+      logger.error(`CORS policy for ${origin} is not allowed`);
+      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     },
     credentials: true,
   })
@@ -50,15 +72,29 @@ app.use(
 const auth0Config = config.get('auth0');
 logger.info('Auth0 Configuration', auth0Config);
 
-const strategy = new Auth0Strategy(auth0Config, (accessToken, refreshToken, extraParams, profile, done) => {
+const strategy = new Auth0Strategy({...auth0Config, state: false}, (accessToken, refreshToken, extraParams, profile, done) => {
+  logger.debug('Received tokens', {
+    accessToken,
+    refreshToken,
+    extraParams,
+    profile,
+  });
+
   return done(null, profile, extraParams.id_token);
 });
 
 passport.serializeUser((user, done) => {
+  logger.debug('Serialize user', {
+    user,
+  });
+
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
+  logger.debug('Deserialize user', {
+    user,
+  });
   done(null, user);
 });
 
@@ -117,33 +153,70 @@ app.get('/user', secured, (req, res) => {
   }
 });
 
+const encodeState = (data) => {
+  let buff = new Buffer(JSON.stringify(data));
+  return buff.toString('base64');
+};
+
+const decodeState = (data) => {
+  let buff = new Buffer(data, 'base64');
+  return JSON.parse(buff.toString('ascii'));
+};
+
 app.get(
   '/login',
-  passport.authenticate('auth0', {
-    scope: 'openid email profile',
-  }),
+  withReturnToUrl,
+  (req, res, next) => {
+    const state = encodeState({returnTo: req.returnTo});
+    const authParams = {
+      connection: 'Discord',
+      scope: 'openid email profile',
+      state,
+    };
+
+    logger.debug('Auth redirection parameters', authParams);
+
+    passport.authenticate('auth0', authParams)(req, res, next);
+  },
   (req, res) => {
     res.redirect('/');
   }
 );
 
 app.get('/callback', (req, res, next) => {
+  const authParams = req.query;
+  logger.debug('Callback request params', {
+    ...authParams,
+  });
+  const state = decodeState(authParams.state);
+
   try {
     passport.authenticate('auth0', (err, user, info) => {
+      logger.debug('Auth callback', {
+        err,
+        user,
+        info,
+      });
       if (err) {
         logger.error('error while fetching callback', err);
         res.send({message: 'error while fetching callback', err});
         return err;
       }
+
       if (!user) {
-        return res.redirect('/login');
+        logger.error('No user fetched after callback', {user});
+        return res.redirect(clientUrl);
       }
 
       req.logIn(user, (err) => {
         if (err) {
           return next(err);
         }
-        res.redirect(clientUrl);
+        logger.debug('Successful user login', {
+          user,
+          state,
+        });
+        res.redirect(state.returnTo);
       });
     })(req, res, next);
   } catch (err) {
@@ -152,9 +225,9 @@ app.get('/callback', (req, res, next) => {
   }
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', withReturnToUrl, (req, res) => {
   req.logout();
-  const logoutURL = `https://${auth0Config.domain}/v2/logout?returnTo=${clientUrl}/logout`;
+  const logoutURL = `https://${auth0Config.domain}/v2/logout?returnTo=${req.returnTo}/logout`;
   res.redirect(logoutURL);
 });
 
