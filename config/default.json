@@ -17,7 +17,8 @@
       "host": "!secret|06cf0e6b3b627b15e5e6050b90eca47f2a0827e363b63436c570c637da98a7a76be3f3b090bc9710d31393d8ade41e0961cfeb5b4312a48920dfe69182c9b8f12cc38fda9e80b15053da0a236d7748f028686ef621a63cee273dfedce0a2fdeab8ef1824e98ea4d64e80a44073f023ad53ee545157acd8f71d",
       "resource": "crud_mongodb",
       "query": "?retryWrites=true&w=majority",
-      "name": "mongodb+srv"
+      "name": "mongodb+srv",
+      "dev": "!secret|7e848d6d144d2677935db3d5339de5947d50c38d9c6ec75c226bbfabe508448b0cfc8123f87a372597a2c311cfc700e2cf49b66de1ff665135a8571ecfa48dd4f2748d2c2a9c52becd670a2d7996bebca723baa3a2774fee202aa7fc9c9184b3aa73d5f31668d3c754f0fa0b3811875eac8d25646468f9ad6337b2342ce9422abc387d788fde8e2365482ce31e3e076982607ccb4bead5b3d2a24ada3c964180d554c27d2e7d6ca0926cbcf673f91767"
     },
     "credentials": {
       "user": "admin",
