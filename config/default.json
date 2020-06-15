@@ -1,7 +1,8 @@
 {
   "config_secret": "secret",
   "client": {
-    "url": "http://localhost:3000"
+    "url": "http://localhost:3000",
+    "allowedHosts": ["localhost"]
   },
   "server": {
     "url": "http://localhost:3001",

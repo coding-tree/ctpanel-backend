@@ -4,9 +4,22 @@ const config = require('config');
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr(config.get('config_secret'));
 
-module.exports = {
-  get: (configKey) => {
+function getConfigByKey(configKey, defaultValue) {
+  try {
     const value = config.get(configKey);
+    return value;
+  } catch (error) {
+    if (defaultValue) {
+      return defaultValue;
+    } else {
+      throw error;
+    }
+  }
+}
+
+module.exports = {
+  get: (configKey, defaultValue) => {
+    const value = getConfigByKey(configKey, defaultValue);
     if (typeof value === 'string' && value.startsWith('!secret|')) {
       const encryptedValue = value.replace('!secret|', '');
       return cryptr.decrypt(encryptedValue);
