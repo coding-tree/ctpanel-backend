@@ -139,6 +139,22 @@ meetings.get('/meetings/last-one', async (req, res) => {
     res.status(500).send(err);
   }
 });
+// get last X meetings
+meetings.get('/meetings/last', async (req, res) => {
+  // /meetings/last?amount=5 to get last 5 meetings
+  try {
+    const amount = parseInt(req.query.amount) || 3;
+    const result = await MeetingModel.find({
+      date: {$lte: new Date().getTime()},
+    })
+      .sort({date: -1})
+      .limit(amount)
+      .exec();
+    res.json(result);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 // get specific meeting by id
 meetings.get('/meetings/:id', async (req, res) => {
