@@ -15,13 +15,13 @@
   "mongo": {
     "uri": {
       "host": "!secret|06cf0e6b3b627b15e5e6050b90eca47f2a0827e363b63436c570c637da98a7a76be3f3b090bc9710d31393d8ade41e0961cfeb5b4312a48920dfe69182c9b8f12cc38fda9e80b15053da0a236d7748f028686ef621a63cee273dfedce0a2fdeab8ef1824e98ea4d64e80a44073f023ad53ee545157acd8f71d",
-      "resource": "crud_mongodb",
+      "resource": "manager_dev",
       "query": "?retryWrites=true&w=majority",
       "name": "mongodb+srv"
     },
     "credentials": {
-      "user": "admin",
-      "pass": "!secret|270dd0caa8ef5612f8767e181d1a8ae6405bfedb8414b466a52cdfcd22fca98981810b68045657aaf5b4e8913f5dc90516be10aa2d18c8318aff1a7ca4af633c012296f6b3f50db0e4b44ae949e34e2ed218a0074d76133034a997f9764965cfa1bd668b3c"
+      "user": "Developer",
+      "pass": "!secret|a6297818d83b50e56903a0961484d742bfac696f24738310906e8e3d9ea6008499afdb1cc0e09c5f97887e529bcfa93f891af1db65403f33a95b308b642c990375e909328ed90d7805ecbb60d721f4df93f7d7606602971a8929af4b56e82c342a14985ace40fc449d56dbcd5d519c1a7f28387523"
     }
   },
   "auth0": {

@@ -108,14 +108,13 @@ const PORT = config.get('server.port');
 async function connectDB() {
   const {host, resource, query, name} = config.get('mongo.uri');
   const dbCredentials = config.get('mongo.credentials');
-
   const settings = {
     ...dbCredentials,
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
   };
-  const dbURI = process.env.MONGO_DB_DEV || `${name}://${host}/${resource}${query}`;
+  const dbURI = `${name}://${host}/${resource}${query}`;
   logger.debug('Trying to connect to mongodb [URI] ', {dbURI});
 
   try {
