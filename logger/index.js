@@ -19,6 +19,7 @@ if (process.env.HEROKU) {
       logger.info(message);
     },
   };
+  module.exports = logger;
 } else {
   let logger = winston.createLogger({
     level: 'info',
@@ -43,6 +44,5 @@ if (process.env.HEROKU) {
       logger.info(message);
     },
   };
+  module.exports = logger;
 }
-
-module.exports = logger;
