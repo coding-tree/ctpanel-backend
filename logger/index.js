@@ -14,6 +14,11 @@ if (process.env.HEROKU) {
     ],
     exitOnError: false, // do not exit on handled exceptions
   });
+  logger.stream = {
+    write: function (message, encoding) {
+      logger.info(message);
+    },
+  };
 } else {
   let logger = winston.createLogger({
     level: 'info',
@@ -33,12 +38,11 @@ if (process.env.HEROKU) {
     ],
     exitOnError: false, // do not exit on handled exceptions
   });
+  logger.stream = {
+    write: function (message, encoding) {
+      logger.info(message);
+    },
+  };
 }
-
-logger.stream = {
-  write: function (message, encoding) {
-    logger.info(message);
-  },
-};
 
 module.exports = logger;
