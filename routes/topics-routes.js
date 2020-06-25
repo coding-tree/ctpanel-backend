@@ -15,22 +15,26 @@ topics.post('/topics', async (req, res) => {
     tags: req.body.tags,
     description: req.body.description,
   });
+
   try {
     const savedTopic = await topic.save();
     res.json(savedTopic);
   } catch (err) {
-    res.status(400).send(err);
+    res.status(500).send(err);
   }
 });
 
-// Voting
 topics.put('/topics/vote/:id', async (req, res) => {
-  const topic = await TopicModel.findById(req.params.id).exec();
+  
   const user = req.app.get('user');
   if (!user) return res.redirect('/login');
+
+  const topic = await TopicModel.findById(req.params.id).exec();
   if (!topic) return res.status(404).send('Podany temat nie istnieje');
+  
   const {id} = user;
   const {vote} = req.query;
+  
   const hasUserVoted = topic.usersVote.find((el) => el.id === id);
 
   const calculateResult = () => {
@@ -49,8 +53,8 @@ topics.put('/topics/vote/:id', async (req, res) => {
     topic.votes = calculateResult();
     const result = await topic.save();
     return res.json(result);
-  }
-  if (hasUserVoted) {
+  } else {
+    
     if ((vote === 'up' && hasUserVoted.vote === 'up') || (vote === 'down' && hasUserVoted.vote === 'down')) {
       const currentVote = topic.usersVote.find((topic) => topic.id === user.id);
       const index = topic.usersVote.findIndex((user) => user.id === currentVote.id);
@@ -58,13 +62,14 @@ topics.put('/topics/vote/:id', async (req, res) => {
     } else if ((vote === 'up' && hasUserVoted.vote === 'down') || (vote === 'down' && hasUserVoted.vote === 'up')) {
       hasUserVoted.vote = vote;
       console.log('juzer juz glosowol 2');
-    } else res.status(400).send('Bad request');
+    } else {
+      res.status(400).send('Bad request')
+    };
+
     topic.votes = calculateResult();
     const result = await topic.save();
     return res.json(result);
   }
-
-  res.status(500).send('Coś poszło nie tak');
 });
 
 // get paginated topics
@@ -79,14 +84,16 @@ topics.get('/topics', paginatedResults(TopicModel), async (req, res) => {
 // update specific meeting, should be changed to patch
 topics.put('/topics/:id', async (req, res) => {
   const {error} = handleTopic(req.body);
+
   if (error) return res.status(400).send(error.details[0].message);
+  
   try {
     const topic = await TopicModel.findById(req.params.id).exec();
     topic.set(req.body);
     const result = await topic.save();
     res.json(result);
   } catch (err) {
-    res.status(400).send(err);
+    res.status(500).send(err);
   }
 });
 

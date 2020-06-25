@@ -3,31 +3,47 @@ const MeetingModel = require('../models/meeting-model');
 const TopicModel = require('../models/topic-model');
 const paginatedResults = require('../middleware/paginate');
 const {handleMeeting} = require('../middleware/validation');
+const logger = require('../logger');
 
 meetings.post('/meetings', async (req, res) => {
+  logger.debug('New meeting request', {
+    body: req.body,
+  });
+
   const {error} = handleMeeting(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const {date, topic, leader, duration, meetingHref, resourcesURL, description, tags, usefulLinks} = req.body || {};
-  const meeting = new MeetingModel({
-    date,
-    topic,
-    leader,
-    duration,
-    meetingHref,
-    resourcesURL,
-    description,
-    tags,
-    usefulLinks,
-  });
   try {
     const topicExistsInDatabase = await TopicModel.findOne({topic: topic}).exec();
+
+    let tagsUnion;
     if (!topicExistsInDatabase) {
+      tagsUnion = tags;
       const newTopic = new TopicModel({
         topic,
+        tags,
       });
-      const savedTopic = await newTopic.save();
+      logger.debug('Saving new topic', {newTopic});
+      await newTopic.save();
+    } else {
+      tagsUnion = [...topicExistsInDatabase.tags, ...tags];
     }
-    const savedMeeting = await meeting.save();
+
+    const newMeeting = new MeetingModel({
+      date,
+      topic,
+      leader,
+      duration,
+      meetingHref,
+      resourcesURL,
+      description,
+      tags: tagsUnion,
+      usefulLinks,
+    });
+
+    logger.debug('Saving new meeting', {newMeeting});
+
+    const savedMeeting = await newMeeting.save();
     res.json(savedMeeting);
   } catch (err) {
     res.status(400).send(err);
@@ -40,8 +56,10 @@ meetings.put('/meetings/:id', async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
   try {
     const meeting = await MeetingModel.findById(req.params.id).exec();
+
     if (meeting) {
       const topicExistsInDatabase = await TopicModel.findOne({topic: meeting.topic});
+
       if (!topicExistsInDatabase) {
         const newTopic = new TopicModel({
           topic: meeting.topic,
