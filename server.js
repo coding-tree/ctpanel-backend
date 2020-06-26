@@ -5,10 +5,11 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const logger = require('./logger');
+const uuidv4 = require('uuid/v4');
 
 const apiRoutes = require('./routes/api-routes');
 const authRoutesProvider = require('./routes/auth');
-const meetingsRoutes = require('./routes/meetings-routes');
+const meetingsRoutesProvider = require('./routes/meetings-routes');
 const topicsRoutes = require('./routes/topics-routes');
 
 const clientUrl = config.get('client.url');
@@ -68,10 +69,57 @@ async function connectDB() {
   return null;
 }
 
-app.use(authRoutesProvider.router());
+app.use(authRoutesProvider.createRouting());
 app.use(apiRoutes);
 app.use(topicsRoutes);
-app.use(meetingsRoutes);
+app.use(meetingsRoutesProvider.createRouting());
+
+const getErrorForStatus = statusNumber => {
+  if (statusNumber >= 400 && statusNumber < 500) {
+    if (statusNumber == 404) {
+      return 'NOT_FOUND';
+    } else {
+      return 'BAD_REQUEST';
+    }
+  } else {
+    return 'INTERNAL_SERVER_ERROR';
+  }
+};
+
+app.use(function(err, req, res, next) {
+  const errorId = uuidv4();
+
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  const status = err.status || 500;
+
+  const cause = err.originalException || err.cause;
+
+  logger.error(
+    `${req.originalUrl} - ${req.method} - ${errorId} - ${status} - ${err.name} - ${err.message} - ${req.ip}`,
+    {
+      id: errorId,
+      status: status,
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      cause: cause ? cause : 'NONE',
+    }
+  );
+
+  const errorLabel = getErrorForStatus(status);
+
+  res.status(status);
+  res.json({
+    id: errorId,
+    timestamp: new Date(),
+    status: status,
+    error: errorLabel,
+    exception: err.name,
+    message: err.message,
+    path: req.originalUrl,
+  });
+});
 
 connectDB().then(() => {
   app.listen(PORT, () => {

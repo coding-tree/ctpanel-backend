@@ -7,7 +7,7 @@ const express = require('express');
 const logger = require('../logger');
 const passport = require('passport');
 
-const router = () => {
+const createRouting = () => {
   const router = express.Router();
 
   const withReturnToUrl = (req, res, next) => {
@@ -169,5 +169,5 @@ const router = () => {
 };
 
 module.exports = {
-  router
+  createRouting
 };
