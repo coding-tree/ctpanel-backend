@@ -5,7 +5,7 @@
     "start:dev": "cross-env NODE_ENV=dev nodemon server.js",
     "start:hotel": "cross-env NODE_ENV=hotel nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production node server.js",
-    "start:prod:heroku": "cross-env NODE_ENV=production HEROKU=true node server.js",
+    "start:prod:heroku": "cross-env NODE_ENV=heroku HEROKU=true node server.js",
     "start:staging": "cross-env NODE_ENV=staging node server.js"
   },
   "dependencies": {
