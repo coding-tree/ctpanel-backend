@@ -1,17 +1,15 @@
 const config = require('./config');
 
-const Auth0Strategy = require('passport-auth0');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session');
 const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
-const passport = require('passport');
 const logger = require('./logger');
+const uuidv4 = require('uuid/v4');
 
 const apiRoutes = require('./routes/api-routes');
-const meetingsRoutes = require('./routes/meetings-routes');
+const authRoutesProvider = require('./routes/auth');
+const meetingsRoutesProvider = require('./routes/meetings-routes');
 const topicsRoutes = require('./routes/topics-routes');
 
 const clientUrl = config.get('client.url');
@@ -31,19 +29,6 @@ const isValidRefererOrClient = (origin) => {
   return allowedHosts.indexOf(originUrl.hostname) > -1 || allowedOrigins.indexOf(origin) > -1;
 };
 
-const withReturnToUrl = (req, res, next) => {
-  const returnToParam = req.query.returnTo;
-  const referer = req.get('referer');
-  logger.debug('Login request', {
-    referer,
-    returnToParam,
-  });
-  const returnTo = returnToParam ? returnToParam : referer ? referer : clientUrl;
-  const fiexedRedirectTo = returnTo.replace(/\/$/, '');
-  req.returnTo = fiexedRedirectTo;
-  next();
-};
-
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -59,49 +44,6 @@ app.use(
     credentials: true,
   })
 );
-
-app.use(cookieParser());
-
-app.use(
-  cookieSession({
-    maxAge: 24 * 60 * 60 * 1000,
-    keys: [config.get('server.session.cookieKey')],
-  })
-);
-
-const auth0Config = config.get('auth0');
-logger.info('Auth0 Configuration', auth0Config);
-
-const strategy = new Auth0Strategy({...auth0Config, state: false}, (accessToken, refreshToken, extraParams, profile, done) => {
-  logger.debug('Received tokens', {
-    accessToken,
-    refreshToken,
-    extraParams,
-    profile,
-  });
-
-  return done(null, profile, extraParams.id_token);
-});
-
-passport.serializeUser((user, done) => {
-  logger.debug('Serialize user', {
-    user,
-  });
-
-  done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-  logger.debug('Deserialize user', {
-    user,
-  });
-  done(null, user);
-});
-
-passport.use(strategy);
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 const PORT = config.get('server.port');
 
@@ -127,107 +69,56 @@ async function connectDB() {
   return null;
 }
 
+app.use(authRoutesProvider.createRouting());
 app.use(apiRoutes);
 app.use(topicsRoutes);
-app.use(meetingsRoutes);
+app.use(meetingsRoutesProvider.createRouting());
 
-const secured = (req, res, next) => {
-  if (!req.user) {
-    res.status(401).send('Access Denied. No token provided');
+const getErrorForStatus = statusNumber => {
+  if (statusNumber >= 400 && statusNumber < 500) {
+    if (statusNumber == 404) {
+      return 'NOT_FOUND';
+    } else {
+      return 'BAD_REQUEST';
+    }
+  } else {
+    return 'INTERNAL_SERVER_ERROR';
   }
-  next();
 };
 
-app.get('/check', secured, (req, res) => {
-  if (req.user) {
-    return res.send('ok');
-  }
-  return res.redirect(`${clientUrl}/login`);
-});
+app.use(function(err, req, res, next) {
+  const errorId = uuidv4();
 
-app.get('/user', secured, (req, res) => {
-  if (req.user) {
-    app.set('user', req.user);
-    res.json(req.user);
-  }
-});
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  const status = err.status || 500;
 
-const encodeState = (data) => {
-  let buff = new Buffer(JSON.stringify(data));
-  return buff.toString('base64');
-};
+  const cause = err.originalException || err.cause;
 
-const decodeState = (data) => {
-  let buff = new Buffer(data, 'base64');
-  return JSON.parse(buff.toString('ascii'));
-};
+  logger.error(
+    `${req.originalUrl} - ${req.method} - ${errorId} - ${status} - ${err.name} - ${err.message} - ${req.ip}`,
+    {
+      id: errorId,
+      status: status,
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      cause: cause ? cause : 'NONE',
+    }
+  );
 
-app.get(
-  '/login',
-  withReturnToUrl,
-  (req, res, next) => {
-    const state = encodeState({returnTo: req.returnTo});
-    const authParams = {
-      connection: 'Discord',
-      scope: 'openid email profile',
-      state,
-    };
+  const errorLabel = getErrorForStatus(status);
 
-    logger.debug('Auth redirection parameters', authParams);
-
-    passport.authenticate('auth0', authParams)(req, res, next);
-  },
-  (req, res) => {
-    res.redirect('/');
-  }
-);
-
-app.get('/callback', (req, res, next) => {
-  const authParams = req.query;
-  logger.debug('Callback request params', {
-    ...authParams,
+  res.status(status);
+  res.json({
+    id: errorId,
+    timestamp: new Date(),
+    status: status,
+    error: errorLabel,
+    exception: err.name,
+    message: err.message,
+    path: req.originalUrl,
   });
-  const state = decodeState(authParams.state);
-
-  try {
-    passport.authenticate('auth0', (err, user, info) => {
-      logger.debug('Auth callback', {
-        err,
-        user,
-        info,
-      });
-      if (err) {
-        logger.error('error while fetching callback', err);
-        res.send({message: 'error while fetching callback', err});
-        return err;
-      }
-
-      if (!user) {
-        logger.error('No user fetched after callback', {user});
-        return res.redirect(clientUrl);
-      }
-
-      req.logIn(user, (err) => {
-        if (err) {
-          return next(err);
-        }
-        logger.debug('Successful user login', {
-          user,
-          state,
-        });
-        res.redirect(state.returnTo);
-      });
-    })(req, res, next);
-  } catch (err) {
-    logger.error('error while fetching callback', err);
-    res.send({message: 'error while fetching callback', err});
-  }
-});
-
-app.get('/logout', withReturnToUrl, (req, res) => {
-  req.logout();
-  const logoutURL = `https://${auth0Config.domain}/v2/logout?returnTo=${req.returnTo}/logout`;
-  res.redirect(logoutURL);
 });
 
 connectDB().then(() => {
