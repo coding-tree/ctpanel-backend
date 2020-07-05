@@ -26,8 +26,8 @@
   },
   "auth0": {
     "domain": "meet-up.eu.auth0.com",
-    "clientID": "Sqnzzkh0scfWWt9gH7OOtRCNCYC1kcEA",
-    "clientSecret": "!secret|e92d744cd63fb4eb6d6753266bdf15877f050dfc4bd87cbbf556de0597f245efde94185f204a4cadb0456438ab340adb84e5dc526762d390346df3154d73a5fd8920bd45a0d5c72d6690881f9a023cdeee16e9c522f018ef61a86d664e100ad865b4713287a035dcf581cf783f010cf7722a5ceea5faf737f0e1007d4808e696a1eefebae9825f3bc5f1392f9c54aa05394813d275eccef7a27b67dd8459d25c",
+    "clientID": "vkHk78Guyh42uekOVi2qlm4sO5l1ooim",
+    "clientSecret": "!secret|7bab1b4957a1e115a4f3dbf9f097d94e8b7ea005e12a2241cd9b20e006c1bccc5cb49f9cd411baa163cfe7cd39c4561b39d56ec628a8380e5019ce064a39a721a60ed73af628e25d66231d31a4511fe2ec5dfa5e4840cc065fb77f739629f61d6e233357a9090a1f85c884a7aec386b40de617add872395d43ca3432b98ca66dbb0eb3cc4a074341c780a9fdba3ae188092d7746e24c9047b3ea414670069086",
     "callbackURL": "http://localhost:3001/callback"
   },
   "google": {
