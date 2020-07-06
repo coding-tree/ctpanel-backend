@@ -25,9 +25,9 @@
     }
   },
   "auth0": {
-    "domain": "meet-up.eu.auth0.com",
-    "clientID": "vkHk78Guyh42uekOVi2qlm4sO5l1ooim",
-    "clientSecret": "!secret|7bab1b4957a1e115a4f3dbf9f097d94e8b7ea005e12a2241cd9b20e006c1bccc5cb49f9cd411baa163cfe7cd39c4561b39d56ec628a8380e5019ce064a39a721a60ed73af628e25d66231d31a4511fe2ec5dfa5e4840cc065fb77f739629f61d6e233357a9090a1f85c884a7aec386b40de617add872395d43ca3432b98ca66dbb0eb3cc4a074341c780a9fdba3ae188092d7746e24c9047b3ea414670069086",
+    "domain": "ctpanel-dev.eu.auth0.com",
+    "clientID": "lwsQP4Zb9w7htSqAlEMqqVExHztdzyMo",
+    "clientSecret": "!secret|a3036ffa05be2502991976981706dff4fc11eef89743fc5a1b88c8e2ff705c6f3f8d425ce81b5e78f5b1396a488f9337373981a0c74d4065720d9a11290a506d9717fa9961a2bbbb0b847c6d9d10d5fb143c6361e04b5a49aa0e3ba718874c74f31b58bbb04574f36de45756296e8cf214132533212c0f658643b6d7048b8b44542b7d2b448526b4804a571accfc3a7a7b262d4574601185f72eaa3032eaaee9",
     "callbackURL": "http://localhost:3001/callback"
   },
   "google": {
