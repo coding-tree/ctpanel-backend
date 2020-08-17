@@ -59,7 +59,6 @@ topics.put('/topics/vote/:id', async (req, res) => {
       topic.usersVote.splice(index, 1);
     } else if ((vote === 'up' && hasUserVoted.vote === 'down') || (vote === 'down' && hasUserVoted.vote === 'up')) {
       hasUserVoted.vote = vote;
-      console.log('juzer juz glosowol 2');
     } else {
       res.status(400).send('Bad request');
     }
@@ -102,7 +101,7 @@ topics.delete('/topics/:id', async (req, res) => {
     const topicName = await topic[0].topic;
     const isTopicInAnyMeeting = await MeetingModel.findOne({topic: topicName});
     if (isTopicInAnyMeeting) {
-      return res.status(500).send(`Cannot remove topic "${topicName}", due to the fact that it is related with at least one meeting.`);
+      return res.status(400).send(`Nie można usunąć tematu "${topicName}", gdyż jest on powiązany z przynajmniej jednym spotkaniem`);
     }
     const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
     return res.json(result);
