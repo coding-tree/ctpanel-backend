@@ -1,1 +1,0 @@
-MEETUP_SECRET=insert secret here and rename env file to .env (dot env -> mv env .env)
