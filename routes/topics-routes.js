@@ -107,7 +107,6 @@ topics.delete('/topics/:id', async (req, res) => {
     const result = await TopicModel.deleteOne({_id: req.params.id}).exec();
     return res.json(result);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 });
