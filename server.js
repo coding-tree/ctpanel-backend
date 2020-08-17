@@ -72,9 +72,9 @@ async function connectDB() {
 app.use(authRoutesProvider.createRouting());
 app.use(apiRoutes);
 app.use(topicsRoutes);
-app.use(meetingsRoutesProvider.createRouting());
+app.use(meetingsRoutesProvider);
 
-const getErrorForStatus = statusNumber => {
+const getErrorForStatus = (statusNumber) => {
   if (statusNumber >= 400 && statusNumber < 500) {
     if (statusNumber == 404) {
       return 'NOT_FOUND';
@@ -86,7 +86,7 @@ const getErrorForStatus = statusNumber => {
   }
 };
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   const errorId = uuidv4();
 
   res.locals.message = err.message;
@@ -95,17 +95,14 @@ app.use(function(err, req, res, next) {
 
   const cause = err.originalException || err.cause;
 
-  logger.error(
-    `${req.originalUrl} - ${req.method} - ${errorId} - ${status} - ${err.name} - ${err.message} - ${req.ip}`,
-    {
-      id: errorId,
-      status: status,
-      name: err.name,
-      message: err.message,
-      stack: err.stack,
-      cause: cause ? cause : 'NONE',
-    }
-  );
+  logger.error(`${req.originalUrl} - ${req.method} - ${errorId} - ${status} - ${err.name} - ${err.message} - ${req.ip}`, {
+    id: errorId,
+    status: status,
+    name: err.name,
+    message: err.message,
+    stack: err.stack,
+    cause: cause ? cause : 'NONE',
+  });
 
   const errorLabel = getErrorForStatus(status);
 
